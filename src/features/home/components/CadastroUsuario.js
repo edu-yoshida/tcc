@@ -18,8 +18,9 @@ const CadastroUsuario = () => {
     };
 
     const validarEmail = (email) => {
-    return email.includes('@') && email.includes('.');
-};  
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+        return regex.test(email.trim());
+    };
 
     const sendData = async (e) => {
         e.preventDefault();
@@ -36,6 +37,11 @@ const CadastroUsuario = () => {
 
         if (form.senha !== form.confirmarSenha) {
             setError('As senhas não coincidem!');
+            return;
+        }
+
+        if (form.senha.length < 6) {
+            setError("A senha deve ter pelo menos 6 caracteres.");
             return;
         }
 
@@ -72,7 +78,7 @@ const CadastroUsuario = () => {
                     <input
                         id="email"
                         name="email"
-                        type="email"
+                        type="text"
                         value={form.email}
                         onChange={handleForm}
                         placeholder="Email"
