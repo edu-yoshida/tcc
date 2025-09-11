@@ -69,14 +69,13 @@ export default function Login() {
                         className="p-3 rounded-xl border-2 border-orange-300 outline-none transition
                                    focus:ring-2 focus:ring-orange-500"
                     />
-                    <button
-                        type="submit"
-                        disabled={loading}
+                    <Link to="/produtos"
                         className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 rounded-xl
-                                   shadow-lg transition transform hover:-translate-y-0.5 active:translate-y-0"
-                    >
-                        {loading ? "Entrando..." : "Entrar"}
-                    </button>
+                                    shadow-lg transition transform hover:-translate-y-0.5 active:translate-y-0
+                                    flex justify-center items-center"
+                        >
+                        Entrar
+                    </Link>
                 </form>
 
                 <Link
