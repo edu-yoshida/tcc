@@ -1,8 +1,12 @@
 import React from 'react';
 import logo from "../../../imagens/LogoGastroFlow.png";
 import api from "../../../shared/utils/api";
+import { useNavigate } from "react-router-dom";
 
 const CadastroUsuario = () => {
+
+    const navigate = useNavigate();
+
     const [form, setForm] = React.useState({
         usuario: '',
         email: '',
@@ -59,6 +63,13 @@ const CadastroUsuario = () => {
     return (
         <div className="flex justify-center items-center min-h-screen 
                     bg-gradient-to-br from-orange-500/80 via-yellow-500/70 to-orange-600/80">
+            <section className="flex justify-center items-center mb-4">
+                <img
+                    src={logo}
+                    alt="Logo GastroFlow"
+                    className="w-4/4 max-w-lg h-auto p-4"
+                />
+            </section>
             <div className="w-full max-w-md p-8 rounded-2xl bg-white shadow-2xl">
                 <form onSubmit={sendData} className="flex flex-col gap-5">
 
@@ -116,6 +127,18 @@ const CadastroUsuario = () => {
                         Cadastrar
                     </button>
                 </form>
+                <div className="flex items-center gap-2 my-6">
+                    <hr className="flex-1 border-gray-300" />
+                    <span className="text-gray-500 text-sm">ou</span>
+                    <hr className="flex-1 border-gray-300" />
+                </div>
+                <button
+                    onClick={() => navigate("/Login")}
+                    className="block mx-auto mt-6 text-orange-600 font-bold cursor-pointer 
+                               hover:text-orange-500 hover:underline"
+                >
+                    Já possui cadastro? Clique aqui
+                </button>
             </div>
         </div>
     );
