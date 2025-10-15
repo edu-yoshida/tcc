@@ -7,7 +7,7 @@ import Login from './features/home/components/Login';
 import SplashScreen from './features/home/components/SplashScreen';
 import CadastroUsuario from "./features/home/components/CadastroUsuario";
 import Sidebar from "./shared/components/Sidebar";
-import CadastroDeProdutos from "./features/home/CadastroDeProdutos";
+import CadastroDeProdutos from "./features/home/components/CadastroDeProdutos";
 import InserirProduto from "./features/storage/InserirProduto";
 import CadastroDeReceita from "./features/recipe/CadastroDeReceita";
 import CadastroCompra from "./features/supplies/Compra";

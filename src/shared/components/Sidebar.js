@@ -16,7 +16,7 @@ const SidebarSection = ({ icon: Icon, title, links }) => {
           <Link
             to={item.path}
             key={index}
-            className="block px-4 py-2 text-sm text-white hover:bg-orange-100 hover:bg-opacity-60 rounded-md mr-10"
+            className="block px-4 py-2 text-sm text-black hover:bg-orange-100 hover:bg-opacity-60 rounded-md mr-10"
           >
             {item.label}
           </Link>
@@ -35,7 +35,7 @@ const Sidebar = () => {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed top-4 left-4 z-50 p-3 bg-gray-800 text-white rounded-md hover:bg-gray-700"
+          className="fixed top-4 left-4 z-50 p-3 bg-[#000000] text-black-800 rounded-md hover:bg-gray-700"
         >
           <FaBars size={20} />
         </button>
@@ -43,7 +43,7 @@ const Sidebar = () => {
 
       {/* Sidebar */}
       {isOpen && (
-        <div className="w-64 bg-gray-800 text-white flex flex-col h-screen fixed top-0 left-0 z-40">
+        <div className="w-64 bg-[#ffffff] text-black-800 flex flex-col h-screen fixed top-0 left-0 z-40">
           {/* Botão de seta no topo */}
           <div className="flex justify-end p-4">
             <button
