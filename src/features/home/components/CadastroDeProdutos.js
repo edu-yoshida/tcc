@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import LogoGastroFlow from '../../imagens/LogoGastroFlow.png';
-import Sidebar from '../../shared/components/Sidebar';
+import { FaBox } from 'react-icons/fa';
+import LogoGastroFlow from '../../../assets/LogoGastroFlow.png';
+import Sidebar from '../../../shared/components/Sidebar';
 
 const CadastroDeProdutos = () => {
   const [formState, setFormState] = useState({
@@ -13,6 +14,10 @@ const CadastroDeProdutos = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormState((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleImageChange = (e) => {
+    setFormState((prev) => ({ ...prev, imagem: e.target.files[0] }));
   };
 
   const handleSubmit = (e) => {
@@ -125,7 +130,7 @@ const CadastroDeProdutos = () => {
             <img
               src={LogoGastroFlow}
               alt="Logo"
-              className="flex-1 max-w-full h-[21rem]  object-contain"
+              className="flex-1 max-w-full max-h-[28rem] h-auto object-contain"
             />
           </div>
         </div>
