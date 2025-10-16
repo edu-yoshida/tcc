@@ -90,7 +90,6 @@ export default App;
 import { useState } from "react";
 import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import './App.css';
-
 import Login from './features/home/components/Login';
 import SplashScreen from './features/home/components/SplashScreen';
 import CadastroUsuario from "./features/home/components/CadastroUsuario";
