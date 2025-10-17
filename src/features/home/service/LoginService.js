@@ -1,49 +1,48 @@
 // src/services/LoginService.js
 
-const API_BASE_URL = "http://localhost:5000/v1/api/auth";
+import api from "../../../shared/utils/api";
 
-export async function registerUser({ name, email, password }) {
+
+async function registerUser({ name, email, password }) {
   try {
-    const response = await fetch(`${API_BASE_URL}/register`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ name, email, password }),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Erro ao registrar usuário: ${response.status} - ${errorText}`);
-    }
-
-    const data = await response.json();
-    return data; // retorna o objeto User
+    const response = await api.post("/v1/api/auth/register", { name, email, password })
+    console.log(response)
+    return response.data
   } catch (error) {
     console.error(error);
     throw error;
   }
 }
 
-export async function loginUser({ email, password }) {
+async function loginUser({ email, password }) {
   try {
-    const response = await fetch(`${API_BASE_URL}/auth/login`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, password }),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Erro ao fazer login: ${response.status} - ${errorText}`);
-    }
-
-    const data = await response.json();
-    return data; // retorna o objeto User
+    const response = await api.post("/v1/api/auth/login", { email, password })
+    console.log(response)
+    return response.data
   } catch (error) {
     console.error(error);
     throw error;
   }
 }
+
+async function sendToken(tokenData) {
+  try {
+    // Usa a instância 'api' para fazer a chamada. A baseURL já está configurada.
+    const response = await api.put('/v1/api/notifications/token', tokenData);
+    console.log(response)
+    return response.data;
+  } catch (error) {
+    console.error('Erro no envio do token:', error.response || error);
+
+    let errorMessage = 'Erro ao fazer login. Por favor, tente novamente.';
+    if (error.response && error.response.status === 401) {
+      errorMessage = 'Email ou senha inválidos.';
+    } else if (error.response && error.response.data && error.response.data.message) {
+      errorMessage = error.response.data.message;
+    }
+
+    throw new Error(errorMessage);
+  }
+}
+
+export default { registerUser, loginUser, sendToken }

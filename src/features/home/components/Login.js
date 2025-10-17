@@ -3,8 +3,15 @@ import logo from "../../../imagens/LogoGastroFlow.png";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import api from "../../../shared/utils/api"; // 🔹 importa o axios configurado
+import LoginService from "../service/LoginService";
+import { jwtDecode } from 'jwt-decode';
+import useAuthStore from '../../../shared/store/auth-store';
 
 export default function Login() {
+
+  const { setAuthData, fcmToken } = useAuthStore();
+
+
 
   const navigate = useNavigate();
 
@@ -26,12 +33,12 @@ export default function Login() {
     }
 
     try {
-      const response = await api.post("/auth/login", {
-        email: form.email,
-        password: form.password,
-      });
+      const data = await LoginService.loginUser(
+        form.email,
+        form.password);
 
-      const { token } = response.data;
+      const { token } = data;
+       const receivedTokenFromBackend = data.token;
 
       // if (!token) {
       //   setError("Token não retornado pela API!");
@@ -41,7 +48,13 @@ export default function Login() {
       // 🔹 Salva o token para próximas requisições
       localStorage.setItem("token", token);
 
+      const decodedUser = jwtDecode(receivedTokenFromBackend);
+        // Armazena o token e as informações decodificadas no Zustand
+        setAuthData(receivedTokenFromBackend, decodedUser);
+        console.log('Dados do usuário decodificados e armazenados:', decodedUser);
+
       alert("Login realizado com sucesso!");
+      await LoginService.sendToken({fcmToken})
       navigate("/produtos"); // redireciona após login
     } catch (err) {
       console.error(err);
