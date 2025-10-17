@@ -49,11 +49,17 @@ const CadastroUsuario = () => {
             return;
         }
 
+        const payload = {
+            name: form.usuario,
+            email: form.email,
+            password: form.senha
+        };
+
         try {
-            const data = await api.post('/usuarios', form);
+            const data = await api.post('/auth/register', payload);
             console.log(data);
             alert("Usuário cadastrado com sucesso!");
-            setForm({ usuario: '', email: '', senha: '', confirmarSenha: '' });
+            setForm({ usuario: '', email: '', senha: ''});
         } catch (err) {
             console.log(err);
             setError("Erro ao cadastrar usuário.");
