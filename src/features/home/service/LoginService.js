@@ -1,15 +1,15 @@
 // src/services/LoginService.js
 
-const API_BASE_URL = "http://localhost:8080/v1/api/auth";
+const API_BASE_URL = "http://localhost:5000/v1/api/auth";
 
-export async function registerUser({ name, email, password, picture }) {
+export async function registerUser({ name, email, password }) {
   try {
     const response = await fetch(`${API_BASE_URL}/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ name, email, password, picture }),
+      body: JSON.stringify({ name, email, password }),
     });
 
     if (!response.ok) {
@@ -27,7 +27,7 @@ export async function registerUser({ name, email, password, picture }) {
 
 export async function loginUser({ email, password }) {
   try {
-    const response = await fetch(`${API_BASE_URL}/login`, {
+    const response = await fetch(`${API_BASE_URL}/auth/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
