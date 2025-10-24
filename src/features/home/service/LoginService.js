@@ -1,7 +1,4 @@
-// src/services/LoginService.js
-
 import api from "../../../shared/utils/api";
-
 
 async function registerUser({ name, email, password }) {
   try {
@@ -27,7 +24,6 @@ async function loginUser({ email, password }) {
 
 async function sendToken(tokenData) {
   try {
-    // Usa a instância 'api' para fazer a chamada. A baseURL já está configurada.
     const response = await api.put('/v1/api/notifications/token', tokenData);
     console.log(response)
     return response.data;

@@ -1,7 +1,8 @@
 import React from 'react';
-import logo from "../../../imagens/LogoGastroFlow.png";
+import LogoGastroFlow from "../../../assets/LogoGastroFlow.png";
 import api from "../../../shared/utils/api";
 import { useNavigate } from "react-router-dom";
+import LoginService from '../service/LoginService';
 
 const CadastroUsuario = () => {
 
@@ -49,17 +50,14 @@ const CadastroUsuario = () => {
             return;
         }
 
-        const payload = {
-            name: form.usuario,
-            email: form.email,
-            password: form.senha
-        };
-
         try {
-            const data = await api.post('/auth/register', payload);
+            const data = await LoginService.registerUser({
+                name: form.usuario,
+                email: form.email,
+                password: form.senha
+            });
             console.log(data);
-            alert("Usuário cadastrado com sucesso!");
-            setForm({ usuario: '', email: '', senha: ''});
+            setForm({ usuario: '', email: '', senha: '', confirmarSenha: ''});
         } catch (err) {
             console.log(err);
             setError("Erro ao cadastrar usuário.");
@@ -71,7 +69,7 @@ const CadastroUsuario = () => {
                     bg-gradient-to-br from-orange-500/80 via-yellow-500/70 to-orange-600/80">
             <section className="flex justify-center items-center mb-4">
                 <img
-                    src={logo}
+                    src={LogoGastroFlow}
                     alt="Logo GastroFlow"
                     className="w-4/4 max-w-lg h-auto p-4"
                 />
@@ -139,7 +137,7 @@ const CadastroUsuario = () => {
                     <hr className="flex-1 border-gray-300" />
                 </div>
                 <button
-                    onClick={() => navigate("/Login")}
+                    onClick={() => navigate("/")}
                     className="block mx-auto mt-6 text-orange-600 font-bold cursor-pointer 
                                hover:text-orange-500 hover:underline"
                 >

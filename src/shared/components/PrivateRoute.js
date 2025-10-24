@@ -1,13 +1,15 @@
-// src/routes/ProtectedRoute.jsx
-import { Navigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import React from 'react'
+import { Navigate } from 'react-router-dom';
+import useAuthStore from '../store/auth-store';
 
-export default function ProtectedRoute({ children }) {
-  const { user } = useAuth();
+const PrivateRoute = ({children}) => {
+  //const {isAuthenticated } = useAuth();
+  const {user} = useAuthStore();
+  return (
 
-  if (!user) {
-    return <Navigate to="/" replace />; 
-  }
-
-  return children;
+    user != null ? children : <Navigate to={"/"} replace />
+  
+  )
 }
+
+export default PrivateRoute
