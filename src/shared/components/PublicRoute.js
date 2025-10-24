@@ -1,15 +1,14 @@
 import React from 'react'
+import {useAuth} from '../context/AuthContext'
 import { Navigate } from 'react-router-dom';
 import useAuthStore from '../store/auth-store';
 
-const PrivateRoute = ({children}) => {
+const PublicRoute = ({children}) => {
   //const {isAuthenticated } = useAuth();
   const {user} = useAuthStore();
   return (
-
-    user != null ? children : <Navigate to={"/"} replace />
-  
+    user == null ? children : <Navigate to={"/"} replace />
   )
 }
 
-export default PrivateRoute
+export default PublicRoute

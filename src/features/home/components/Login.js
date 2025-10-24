@@ -1,8 +1,7 @@
 import React from "react";
-import logo from "../../../imagens/LogoGastroFlow.png";
+import LogoGastroFlow from "../../../assets/LogoGastroFlow.png";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
-import api from "../../../shared/utils/api"; // 🔹 importa o axios configurado
 import LoginService from "../service/LoginService";
 import { jwtDecode } from 'jwt-decode';
 import useAuthStore from '../../../shared/store/auth-store';
@@ -10,8 +9,6 @@ import useAuthStore from '../../../shared/store/auth-store';
 export default function Login() {
 
   const { setAuthData, fcmToken } = useAuthStore();
-
-
 
   const navigate = useNavigate();
 
@@ -33,29 +30,23 @@ export default function Login() {
     }
 
     try {
-      const data = await LoginService.loginUser(
-        form.email,
-        form.password);
+      const data = await LoginService.loginUser({
+        email: form.email,
+        password: form.password
+      });
+
 
       const { token } = data;
-       const receivedTokenFromBackend = data.token;
+      const receivedTokenFromBackend = data.token;
 
-      // if (!token) {
-      //   setError("Token não retornado pela API!");
-      //   return;
-      // }
-
-      // 🔹 Salva o token para próximas requisições
       localStorage.setItem("token", token);
 
       const decodedUser = jwtDecode(receivedTokenFromBackend);
-        // Armazena o token e as informações decodificadas no Zustand
-        setAuthData(receivedTokenFromBackend, decodedUser);
-        console.log('Dados do usuário decodificados e armazenados:', decodedUser);
+      setAuthData(receivedTokenFromBackend, decodedUser);
+      console.log('Dados do usuário decodificados e armazenados:', decodedUser);
 
-      alert("Login realizado com sucesso!");
-      await LoginService.sendToken({fcmToken})
-      navigate("/produtos"); // redireciona após login
+      await LoginService.sendToken({ fcmToken })
+      navigate("/produtos");
     } catch (err) {
       console.error(err);
       if (err.response && err.response.status === 401) {
@@ -77,7 +68,7 @@ export default function Login() {
 
         <section className="flex justify-center items-center mb-4">
           <img
-            src={logo}
+            src={LogoGastroFlow}
             alt="Logo GastroFlow"
             className="w-4/4 max-w-lg h-auto p-4"
           />
@@ -127,20 +118,6 @@ export default function Login() {
             Entrar
           </button>
         </form>
-
-        <div className="flex items-center gap-2 my-6">
-          <hr className="flex-1 border-gray-300" />
-          <span className="text-gray-500 text-sm">ou</span>
-          <hr className="flex-1 border-gray-300" />
-        </div>
-
-        <button
-          onClick={() => navigate("/CadastroUsuario")}
-          className="block mx-auto mt-6 text-orange-600 font-bold cursor-pointer 
-             hover:text-orange-500 hover:underline"
-        >
-          Cadastrar novo usuário
-        </button>
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import logo from "../../../imagens/LogoGastroFlow.png";
+import LogoGastroFlow from "../../../assets/LogoGastroFlow.png";
 
 export default function SplashScreen({ onFinish }) {
   const [fadeOut, setFadeOut] = useState(false);
@@ -27,7 +27,7 @@ export default function SplashScreen({ onFinish }) {
       ${fadeOut ? "animate-fadeOut" : "animate-fadeIn"}`}
     >
       <img
-        src={logo}
+        src={LogoGastroFlow}
         alt="Logo GastroFlow"
         className="w-90 animate-zoomIn"
       />
