@@ -1,6 +1,5 @@
 import React from 'react';
 import LogoGastroFlow from "../../../assets/LogoGastroFlow.png";
-import api from "../../../shared/utils/api";
 import { useNavigate } from "react-router-dom";
 import LoginService from '../service/LoginService';
 
@@ -58,6 +57,7 @@ const CadastroUsuario = () => {
             });
             console.log(data);
             setForm({ usuario: '', email: '', senha: '', confirmarSenha: ''});
+            navigate("/")
         } catch (err) {
             console.log(err);
             setError("Erro ao cadastrar usuário.");
