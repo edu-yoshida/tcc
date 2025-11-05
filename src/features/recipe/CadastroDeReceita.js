@@ -1,162 +1,335 @@
 import React, { useState } from 'react';
-import { FaBox } from 'react-icons/fa';
 import LogoGastroFlow from '../../assets/LogoGastroFlow.png';
 import Sidebar from '../../shared/components/Sidebar';
+import { FaPlusCircle, FaTrashAlt } from 'react-icons/fa';
+import StockModal from '../../shared/components/StockModal';
+import ReceitaService from '../home/service/ReceitaService';
 
 const CadastroDeReceita = () => {
-    const [formState, setFormState] = useState({
+  const [formState, setFormState] = useState({
     nome: '',
     descricao: '',
-    ingredientes: '',
-    imagem: null,
-    });
+    produtoIds: [],
+    tempoPreparo: '',
+    rendimento: '',
+    tipo: '',
+    professorReceita: '',
+  });
 
-    const handleChange = (e) => {
+  const [errors, setErrors] = useState({});
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loadingProdutos, setLoadingProdutos] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleChange = (e) => {
     const { name, value } = e.target;
     setFormState((prev) => ({ ...prev, [name]: value }));
-    };
 
-    const handleImageChange = (e) => {
-    setFormState((prev) => ({ ...prev, imagem: e.target.files[0] }));
-    };
+    // Limpa o erro do campo conforme o usuário digita
+    setErrors((prev) => ({ ...prev, [name]: '' }));
+  };
 
-    const handleSubmit = (e) => {
+  // 🔎 Função de validação
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!formState.nome.trim()) newErrors.nome = 'O nome da receita é obrigatório.';
+    if (!formState.descricao.trim()) newErrors.descricao = 'A descrição é obrigatória.';
+    if (formState.produtoIds.length === 0) newErrors.produtoIds = 'Adicione pelo menos um ingrediente.';
+    if (!formState.tempoPreparo.trim()) newErrors.tempoPreparo = 'Informe o tempo de preparo.';
+    if (!formState.rendimento.trim()) newErrors.rendimento = 'Informe o rendimento.';
+    if (!formState.tipo.trim()) newErrors.tipo = 'Informe o tipo de receita.';
+    if (!formState.professorReceita.trim()) newErrors.professorReceita = 'Informe o professor ou autor.';
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0; // retorna true se válido
+  };
+
+  // ✅ Função para enviar ao backend
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Formulário enviado:', formState);
+
+    if (!validateForm()) {
+      return; // interrompe o envio se houver erros
+    }
+
+    const receitaData = {
+      nome: formState.nome,
+      descricao: formState.descricao,
+      tempoPreparo: formState.tempoPreparo,
+      rendimento: formState.rendimento,
+      tipo: formState.tipo,
+      professorReceita: formState.professorReceita,
+      produtoIds: formState.produtoIds.map((ing) => ing.id),
     };
 
-    return (
+    try {
+      setSubmitting(true);
+      await ReceitaService.RegisterRecipe(receitaData);
+      alert('✅ Receita cadastrada com sucesso!');
+
+      setFormState({
+        nome: '',
+        descricao: '',
+        produtoIds: [],
+        tempoPreparo: '',
+        rendimento: '',
+        tipo: '',
+        professorReceita: '',
+      });
+      setErrors({});
+    } catch (error) {
+      console.error('❌ Erro ao cadastrar receita:', error);
+      alert('Ocorreu um erro ao cadastrar a receita. Verifique o console.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  // Modal
+  const openAdjustStockModal = () => setIsModalOpen(true);
+  const closeAdjustStockModal = () => setIsModalOpen(false);
+
+  const handleAddIngredients = (ingredientesSelecionados) => {
+    setFormState((prev) => ({
+      ...prev,
+      produtoIds: [...prev.produtoIds, ...ingredientesSelecionados],
+    }));
+    setIsModalOpen(false);
+    setErrors((prev) => ({ ...prev, produtoIds: '' }));
+  };
+
+  const handleRemoveIngredient = (indexToRemove) => {
+    setFormState((prev) => ({
+      ...prev,
+      produtoIds: prev.produtoIds.filter((_, index) => index !== indexToRemove),
+    }));
+  };
+
+  return (
     <div className="flex w-screen h-screen overflow-hidden bg-[#fff9d6] text-gray-800 font-sans">
-        {/* SIDEBAR */}
-        <aside className="w-64 shrink-0">
+      {/* SIDEBAR */}
+      <aside className="w-64 shrink-0">
         <div className="h-full overflow-y-auto">
-            <Sidebar />
+          <Sidebar />
         </div>
-        </aside>
+      </aside>
 
-        {/* DIREITA */}
-        <div className="flex-1 min-w-0 flex flex-col">
+      {/* CONTEÚDO */}
+      <div className="flex-1 min-w-0 flex flex-col">
         {/* TOPBAR */}
-        <div className="h-16 shrink-0 bg-orange-600 text-white flex items-center justify-center">
-            <h2 className="text-lg font-bold">Cadastro de Receitas - GastroFlow</h2>
+        <div className="h-28 shrink-0 bg-gradient-to-r from-orange-400 via-yellow-500 to-orange-600 flex flex-col items-center justify-center text-white rounded-b-3xl overflow-hidden shadow-lg">
+          <h2 className="text-2xl font-extrabold tracking-tight">Cadastro de Receitas</h2>
+          <p className="text-sm opacity-90">GastroFlow</p>
         </div>
 
-        {/* CONTEÚDO */}
-        <div className="flex-1 flex items-center justify-center p-4 md:p-6 bg-orange-100">
-            <div className="w-full max-w-3xl bg-white rounded-lg shadow p-6">
+        {/* FORMULÁRIO */}
+        <div className="flex-1 flex items-start justify-center md:p-6 overflow-y-auto relative">
+          <div className="w-full max-w-3xl bg-white rounded-xl shadow-2xl p-6 transition-all duration-300">
             <form onSubmit={handleSubmit} className="space-y-5">
-                {/* Nome */}
+              
+              {/* Nome */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Nome da Receita</label>
+                <input
+                  type="text"
+                  name="nome"
+                  value={formState.nome}
+                  onChange={handleChange}
+                  placeholder="Ex: Pão de Queijo"
+                  className={`block w-full rounded-lg border p-3 text-sm transition ${
+                    errors.nome ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                />
+                {errors.nome && <p className="text-red-500 text-xs mt-1">{errors.nome}</p>}
+              </div>
+
+              {/* Ingredientes */}
+              <div className="flex flex-col space-y-3">
+                <label className="text-xl text-gray-800">Ingredientes</label>
+
+                <button
+                  type="button"
+                  onClick={openAdjustStockModal}
+                  className="py-2 px-4 rounded-md text-sm font-medium text-white bg-green-500 hover:bg-green-600 transition flex items-center justify-center space-x-1"
+                >
+                  <FaPlusCircle className="mr-1" size={16} /> Adicionar Ingredientes
+                </button>
+
+                {errors.produtoIds && (
+                  <p className="text-red-500 text-xs mt-1">{errors.produtoIds}</p>
+                )}
+
+                {formState.produtoIds.length > 0 && (
+                  <div className="mt-4 border border-gray-200 rounded-xl bg-gradient-to-br from-white to-gray-50 p-4 shadow-sm">
+                    <h3 className="text-lg font-semibold mb-3 text-gray-800 flex items-center">
+                      Ingredientes Selecionados
+                    </h3>
+
+                    <ul className="divide-y divide-gray-200">
+                      {formState.produtoIds.map((item, index) => (
+                        <li
+                          key={index}
+                          className="flex justify-between items-center py-2 px-2 hover:bg-orange-50 rounded-lg transition-all duration-150"
+                        >
+                          <div className="flex flex-col">
+                            <span className="font-bold text-gray-800 text-lg">
+                              {item.nomeProduto}
+                            </span>
+                            <div className="text-xs text-gray-500">
+                              {item.categoria && (
+                                <span className="mr-2">
+                                  Categoria: <span className="text-gray-700">{item.categoria}</span>
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveIngredient(index)}
+                            className="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-100 transition-all duration-200"
+                            title="Remover ingrediente"
+                          >
+                            <FaTrashAlt size={14} />
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+
+              {/* Descrição */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Descrição</label>
+                <input
+                  name="descricao"
+                  value={formState.descricao}
+                  onChange={handleChange}
+                  placeholder="Adicione uma breve descrição"
+                  className={`block w-full rounded-lg border p-3 text-sm transition h-24 ${
+                    errors.descricao ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                />
+                {errors.descricao && <p className="text-red-500 text-xs mt-1">{errors.descricao}</p>}
+              </div>
+
+              {/* Tempo e Rendimento */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Nome da Receita
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">
+                    Tempo de Preparo (min)
+                  </label>
+                  <input
+                    type="text"
+                    name="tempoPreparo"
+                    value={formState.tempoPreparo}
+                    onChange={handleChange}
+                    placeholder="Ex: 45"
+                    className={`block w-full rounded-lg border p-3 text-sm transition ${
+                      errors.tempoPreparo ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                  />
+                  {errors.tempoPreparo && (
+                    <p className="text-red-500 text-xs mt-1">{errors.tempoPreparo}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">
+                    Rendimento (porções)
+                  </label>
+                  <input
+                    type="text"
+                    name="rendimento"
+                    value={formState.rendimento}
+                    onChange={handleChange}
+                    placeholder="Ex: 8"
+                    className={`block w-full rounded-lg border p-3 text-sm transition ${
+                      errors.rendimento ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                  />
+                  {errors.rendimento && (
+                    <p className="text-red-500 text-xs mt-1">{errors.rendimento}</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Tipo */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  Tipo de Receita
                 </label>
                 <input
-                    type="text"
-                    name="nome"
-                    value={formState.nome}
-                    onChange={handleChange}
-                    placeholder="Ex: Pão de Queijo"
-                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 p-2 border text-sm"
+                  type="text"
+                  name="tipo"
+                  value={formState.tipo}
+                  onChange={handleChange}
+                  placeholder="Ex: Sobremesa, Prato Principal..."
+                  className={`block w-full rounded-lg border p-3 text-sm transition ${
+                    errors.tipo ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 />
-                </div>
+                {errors.tipo && <p className="text-red-500 text-xs mt-1">{errors.tipo}</p>}
+              </div>
 
-                {/* Descrição */}
-                <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Descrição da Receita
+              {/* Professor */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  Professor/Autor
                 </label>
-                <textarea
-                    name="descricao"
-                    value={formState.descricao}
-                    onChange={handleChange}
-                    placeholder="Descreva a receita"
-                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 p-2 border text-sm h-20"
+                <input
+                  type="text"
+                  name="professorReceita"
+                  value={formState.professorReceita}
+                  onChange={handleChange}
+                  placeholder="Nome do responsável pela receita"
+                  className={`block w-full rounded-lg border p-3 text-sm transition ${
+                    errors.professorReceita ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 />
-                </div>
+                {errors.professorReceita && (
+                  <p className="text-red-500 text-xs mt-1">{errors.professorReceita}</p>
+                )}
+              </div>
 
-                {/* Ingredientes */}
-                <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Ingredientes
-                </label>
-                <textarea
-                    name="ingredientes"
-                    value={formState.ingredientes}
-                    onChange={handleChange}
-                    placeholder="Liste os ingredientes da receita"
-                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 p-2 border text-sm h-20"
-                />
-                </div>
-
-                {/* Imagem */}
-                <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Adicionar imagem da receita (opcional)
-                </label>
-                <div className="flex items-center gap-4 mt-1">
-                    <input
-                    type="file"
-                    name="imagem"
-                    onChange={handleImageChange}
-                    className="hidden"
-                    id="image-upload"
-                    />
-                    <label
-                    htmlFor="image-upload"
-                    className="cursor-pointer bg-gray-100 border border-gray-300 rounded-md py-2 px-4 text-sm font-medium text-gray-700 hover:bg-gray-200"
-                    >
-                    Escolher Arquivo
-                    </label>
-                    {formState.imagem ? (
-                    <span className="text-sm text-gray-600">{formState.imagem.name}</span>
-                    ) : (
-                    <span className="text-sm text-gray-400">Nenhum arquivo escolhido</span>
-                    )}
-                </div>
-                <div className="mt-4 p-2 border border-gray-300 rounded-md w-fit bg-gray-50">
-                    {formState.imagem ? (
-                    <img
-                        src={URL.createObjectURL(formState.imagem)}
-                        alt="Preview"
-                        className="h-24 w-auto object-contain"
-                    />
-                    ) : (
-                    <div className="h-24 w-24 flex items-center justify-center text-gray-400 text-xs">
-                        <FaBox className="w-10 h-10" />
-                    </div>
-                    )}
-                </div>
-                </div>
-
-                {/* Botões */}
-                <div className="flex flex-col space-y-3 pt-2">
+              {/* Botões */}
+              <div className="flex flex-col space-y-3 pt-4">
                 <button
-                    type="submit"
-                    className="py-2 px-4 rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none w-full"
+                  type="submit"
+                  disabled={submitting}
+                  className="py-3 px-4 rounded-lg shadow-md text-base font-bold text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-4 focus:ring-orange-300 transition w-full"
                 >
-                    Cadastrar Receita
+                  {submitting ? 'Salvando...' : 'Cadastrar Receita'}
                 </button>
                 <button
-                    type="button"
-                    onClick={() => console.log('Cancelar')}
-                    className="py-2 px-4 rounded-md shadow-sm text-sm font-medium bg-orange-300 hover:bg-orange-200 focus:outline-none w-full"
+                  type="button"
+                  onClick={() => console.log('Cancelar')}
+                  className="py-3 px-4 rounded-lg shadow-sm text-base font-medium bg-orange-300 hover:bg-orange-400 text-gray-800 transition w-full"
                 >
-                    Cancelar
+                  Cancelar
                 </button>
-                </div>
+              </div>
             </form>
-            </div>
+          </div>
 
-            {/* Logo (fixo no canto direito) */}
-            <img
+          <img
             src={LogoGastroFlow}
             alt="Logo"
-            className="absolute right-10 bottom-10 w-40 opacity-80"
-            />
+            className="hidden md:block absolute right-10 bottom-10 w-40 opacity-80"
+          />
         </div>
-        </div>
+      </div>
+
+      <StockModal
+        isOpen={isModalOpen}
+        onClose={closeAdjustStockModal}
+        onAddIngredients={handleAddIngredients}
+        loadingProdutos={loadingProdutos}
+      />
     </div>
-    );
+  );
 };
 
 export default CadastroDeReceita;
