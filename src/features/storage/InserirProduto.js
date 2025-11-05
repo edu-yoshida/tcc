@@ -77,17 +77,17 @@ const InserirProduto = () => {
   };
 
   return (
-    <div className="flex w-screen h-screen overflow-hidden bg-[#fff5e6] text-gray-800 font-sans">
+    <div className="flex w-screen h-screen overflow-hidden  bg-orange-100 text-gray-800 font-sans">
       <aside className="w-64 shrink-0">
         <div className="h-full overflow-y-auto"><Sidebar /></div>
       </aside>
 
       <div className="flex-1 min-w-0 flex flex-col">
-        <div className="h-16 shrink-0 bg-orange-600 text-white flex items-center justify-center">
+        <div className="h-28 shrink-0 bg-gradient-to-r from-orange-400 via-yellow-500 to-orange-600 flex flex-col items-center justify-center text-white rounded-b-3xl overflow-hidden">
           <h2 className="text-lg font-bold">Gerenciar Produtos - GastroFlow</h2>
         </div>
 
-        <div className="flex-1 flex p-6 bg-[#fff5e6] space-x-6 overflow-auto items-center justify-center">
+        <div className="flex-1 flex p-6  bg-orange-100 space-x-6 overflow-auto items-center justify-center">
           <div className="w-1/2 shrink-0 bg-white rounded-lg shadow-md p-6 space-y-4 max-h-full flex flex-col">
             <h3 className="text-xl font-semibold text-gray-800">Produtos Cadastrados</h3>
 
@@ -108,9 +108,11 @@ const InserirProduto = () => {
                 onChange={(e) => setFiltroCategoria(e.target.value || null)}
                 className="py-2 px-4 rounded-md text-sm font-medium bg-orange-500 text-white hover:bg-orange-600 border-none appearance-none cursor-pointer"
               >
-                <option value="">Todas as Categorias</option>
-                <option value="graos">Grãos</option>
-                <option value="carnes">Carnes</option>
+                <option value="">Todas as categorias</option>
+                      <option value="estocaveis">Estocaveis</option>
+                      <option value="hortifruiti">Hortifruiti</option>
+                      <option value="acougues">Acougues</option>
+                      <option value="laticinios">Laticinios</option>
               </select>
 
               <button
@@ -135,13 +137,6 @@ const InserirProduto = () => {
                           Categoria: {produto.categoria} | Medida: {produto.unidadeMedida} | Quantidade: {produto.quantidadeEstoque ?? 0}
                         </p>
                       </div>
-
-                      <button
-                        onClick={() => console.log("Preparar PATCH para id:", produto.id)}
-                        className="py-1 px-3 text-xs rounded-full bg-orange-100 text-orange-600 hover:bg-orange-200 transition"
-                      >
-                        Definir Acesso
-                      </button>
                     </li>
                   ))
                 ) : (
@@ -155,7 +150,6 @@ const InserirProduto = () => {
         </div>
       </div>
 
-      {/* Modal não precisa receber 'products', ele busca os produtos sozinho */}
       <AdjustStockModal
         isOpen={isModalOpen}
         onClose={closeAdjustStockModal}

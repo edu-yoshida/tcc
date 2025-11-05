@@ -88,14 +88,6 @@
                 }
               />
               <Route
-                path="/produtos/remove"
-                element={
-                  <PrivateRoute>
-                    <RetirarProduto />
-                  </PrivateRoute>
-                }
-              />
-              <Route
                 path="/receitas"
                 element={
                   <PrivateRoute>

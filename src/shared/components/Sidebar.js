@@ -59,9 +59,7 @@ const Sidebar = () => {
             title="Produto Estoque"
             links={[
               { label: "Cadastro de Produto", path: "/produtos" },
-              { label: "Inserir Produto", path: "/produtos/add" },
-              { label: "Retirar Produto", path: "/produtos/remove" },
-              { label: "Verificar Estoque", path: "/produtos/storage" },
+              { label: "Gerenciar Produtos", path: "/produtos/add" },
             ]}
           />
           <SidebarSection
@@ -70,7 +68,6 @@ const Sidebar = () => {
             links={[
               { label: "Cadastro de Receita", path: "/receitas" },
               { label: "Receitas por Aula", path: "/receitas/class" },
-              { label: "Cadastro de ingrediente", path: "/receitas/ingrediente" },
             ]}
           />
           <SidebarSection
