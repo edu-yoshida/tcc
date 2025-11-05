@@ -36,7 +36,7 @@ const CadastroReceitasPorAula = () => {
       {/* Conteúdo principal */}
       <div className="flex-1 min-w-0 flex flex-col">
         {/* Topbar */}
-        <div className="h-16 shrink-0 bg-orange-600 text-white flex items-center justify-center">
+        <div className="h-28 shrink-0 bg-gradient-to-r from-orange-400 via-yellow-500 to-orange-600 flex flex-col items-center justify-center text-white rounded-b-3xl overflow-hidden">
           <h2 className="text-lg font-bold">Cadastro de Receitas por Aula - GastroFlow</h2>
         </div>
 
