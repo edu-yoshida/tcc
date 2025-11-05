@@ -1,48 +1,45 @@
 import React, { useState, useEffect } from "react";
 import { FaTimes, FaSave } from "react-icons/fa";
-import api from "../../shared/utils/api"; // ajuste o caminho conforme a estrutura do seu projeto
 import ProdutoService from "../../features/home/service/ProdutoService";
 
 const AdjustStockModal = ({ isOpen, onClose, onUpdateStockBatch }) => {
-  const [products, setProducts] = useState([]);          // produtos buscados do backend
-  const [stockChanges, setStockChanges] = useState({});  // alterações feitas
+  const [products, setProducts] = useState([]);
+  const [stockChanges, setStockChanges] = useState({});
   const [errorMessage, setErrorMessage] = useState("");
-  const [loading, setLoading] = useState(false);         // indicador de carregamento
+  const [loading, setLoading] = useState(false);
 
-  // Função que busca produtos assim que o modal é aberto
+  // 🔍 Filtros
+  const [filtroNome, setFiltroNome] = useState("");
+  const [filtroCategoria, setFiltroCategoria] = useState("");
+
+  // 🔄 Buscar produtos ao abrir o modal
   useEffect(() => {
-  async function fetchProducts() {
-    try {
-      setLoading(true);
-
-      // ✅ Correção: o método já retorna os dados, então não existe "response.data"
-      const produtos = await ProdutoService.GetProducts();
-      console.log("📦 Produtos carregados:", produtos);
-
-      // ✅ Armazena os produtos diretamente
-      setProducts(produtos || []);
-      console.log("🧩 Produto retornado da API:", produtos);
-    } catch (error) {
-      console.error("❌ Erro ao buscar produtos:", error);
-      setErrorMessage("Erro ao carregar produtos. Tente novamente.");
-    } finally {
-      setLoading(false);
+    async function fetchProducts() {
+      try {
+        setLoading(true);
+        const produtos = await ProdutoService.GetProducts();
+        setProducts(produtos || []);
+      } catch (error) {
+        console.error("❌ Erro ao buscar produtos:", error);
+        setErrorMessage("Erro ao carregar produtos. Tente novamente.");
+      } finally {
+        setLoading(false);
+      }
     }
-  }
 
-  if (isOpen) {
-    setStockChanges({});
-    setErrorMessage("");
-    fetchProducts(); // ← chama ao abrir o modal
-  }
-}, [isOpen]);
-
+    if (isOpen) {
+      setStockChanges({});
+      setErrorMessage("");
+      setFiltroNome("");
+      setFiltroCategoria("");
+      fetchProducts();
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
   const handleStockChange = (id, value) => {
     const parsedValue = parseInt(value, 10);
-     console.log("🧩 Alterando estoque:", id, value); // ← veja se o ID chega aqui
     if (!isNaN(parsedValue) && parsedValue >= 0) {
       setStockChanges((prev) => ({ ...prev, [id]: parsedValue }));
     } else if (value === "") {
@@ -54,29 +51,26 @@ const AdjustStockModal = ({ isOpen, onClose, onUpdateStockBatch }) => {
     e.preventDefault();
 
     try {
-      // Monta o array de atualizações somando os valores
       const updates = products
         .map((p) => {
           const addValue = stockChanges[p.id];
-          if (addValue === undefined || addValue === "" || isNaN(addValue)) return null;
+          if (addValue === undefined || addValue === "" || isNaN(addValue))
+            return null;
 
           const newStock = (p.quantidadeEstoque || 0) + parseInt(addValue, 10);
-
           return {
             id: p.id,
-            quantidadeEstoque: newStock, // soma o valor atual + valor inserido
+            quantidadeEstoque: newStock,
           };
         })
-        .filter(Boolean); // remove nulos
+        .filter(Boolean);
 
       if (updates.length === 0) {
         setErrorMessage("Nenhuma alteração válida para salvar.");
         return;
       }
 
-      console.log("📦 Enviando atualizações de estoque:", updates);
       await onUpdateStockBatch(updates);
-
       alert("✅ Estoque atualizado com sucesso!");
       onClose();
     } catch (error) {
@@ -85,26 +79,67 @@ const AdjustStockModal = ({ isOpen, onClose, onUpdateStockBatch }) => {
     }
   };
 
-  // Exibe os produtos e o campo de incremento
   const productsWithStock = Array.isArray(products)
     ? products.map((p) => ({
-      ...p,
-      addValue: stockChanges[p.id] ?? "",
-    }))
+        ...p,
+        addValue: stockChanges[p.id] ?? "",
+      }))
     : [];
 
+  // 🔎 Filtro aplicado
+  const produtosFiltrados = productsWithStock.filter((p) => {
+    const nomeMatch = p.nome
+      .toLowerCase()
+      .includes(filtroNome.toLowerCase().trim());
+    const categoriaMatch =
+      filtroCategoria === "" ||
+      (p.categoria &&
+        p.categoria.toLowerCase() === filtroCategoria.toLowerCase());
+    return nomeMatch && categoriaMatch;
+  });
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-xl p-8 w-full max-w-2xl h-5/6 flex flex-col relative">
         <div className="flex justify-between items-center mb-6 border-b pb-3">
-          <h3 className="text-2xl font-bold text-gray-800">Ajuste de Estoque em Lote</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition">
+          <h3 className="text-2xl font-bold text-gray-800">
+            Ajuste de Estoque em Lote
+          </h3>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 transition"
+          >
             <FaTimes size={24} />
           </button>
         </div>
 
-        {errorMessage && <p className="text-red-600 text-center mb-4">{errorMessage}</p>}
+        {/* 🔍 Filtros */}
+        <div className="flex flex-col md:flex-row md:items-center md:space-x-4 mb-4">
+          <input
+            type="text"
+            placeholder="Buscar por nome..."
+            value={filtroNome}
+            onChange={(e) => setFiltroNome(e.target.value)}
+            className="border border-gray-300 rounded-md p-2 text-sm w-full md:w-1/2 focus:ring-orange-500 focus:border-orange-500"
+          />
+
+          <select
+            value={filtroCategoria}
+            onChange={(e) => setFiltroCategoria(e.target.value)}
+            className="border border-gray-300 rounded-md p-2 text-sm w-full md:w-1/2 focus:ring-orange-500 focus:border-orange-500 mt-2 md:mt-0"
+          >
+            <option value="">Todas as categorias</option>
+            <option value="hortifruti">Hortifruti</option>
+            <option value="estocaveis">Estocáveis</option>
+            <option value="laticinios">Laticínios</option>
+            <option value="acougues">Açougues</option>
+          </select>
+        </div>
+
+        {errorMessage && (
+          <p className="text-red-600 text-center mb-4">{errorMessage}</p>
+        )}
+
         {loading ? (
           <p className="text-center text-gray-600">Carregando produtos...</p>
         ) : (
@@ -124,9 +159,10 @@ const AdjustStockModal = ({ isOpen, onClose, onUpdateStockBatch }) => {
                     </th>
                   </tr>
                 </thead>
+
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {productsWithStock.length > 0 ? (
-                    productsWithStock.map((produto) => (
+                  {produtosFiltrados.length > 0 ? (
+                    produtosFiltrados.map((produto) => (
                       <tr key={produto.id}>
                         <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
                           {produto.nome}
@@ -135,12 +171,13 @@ const AdjustStockModal = ({ isOpen, onClose, onUpdateStockBatch }) => {
                           </span>
                         </td>
                         <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
-                          {produto.quantidadeEstoque ?? 0} {produto.unidadeMedida}
+                          {produto.quantidadeEstoque ?? 0}{" "}
+                          {produto.unidadeMedida}
                         </td>
                         <td className="px-4 py-2 whitespace-nowrap text-sm">
                           <input
                             type="number"
-                            value={produto.currentEditValue}
+                            value={produto.addValue}
                             onChange={(e) =>
                               handleStockChange(produto.id, e.target.value)
                             }
@@ -176,10 +213,11 @@ const AdjustStockModal = ({ isOpen, onClose, onUpdateStockBatch }) => {
               <button
                 type="submit"
                 disabled={Object.keys(stockChanges).length === 0}
-                className={`py-2 px-4 rounded-md text-sm font-medium text-white transition flex items-center ${Object.keys(stockChanges).length === 0
+                className={`py-2 px-4 rounded-md text-sm font-medium text-white transition flex items-center ${
+                  Object.keys(stockChanges).length === 0
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-orange-600 hover:bg-orange-700"
-                  }`}
+                }`}
               >
                 <FaSave className="mr-2" /> Salvar Alterações (
                 {Object.keys(stockChanges).length})
