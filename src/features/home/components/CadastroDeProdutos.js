@@ -104,6 +104,7 @@ const CadastroDeProdutos = () => {
                       onChange={handleChange}
                       className="block w-full rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-orange-400 focus:border-orange-400 p-2 text-sm"
                     >
+                      <option value="">Selecione a medida</option>
                       <option value="g">gramas</option>
                       <option value="ml">Mililitros (ml)</option>
                       <option value="unidades">Unidade (un)</option>
