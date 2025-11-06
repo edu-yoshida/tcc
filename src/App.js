@@ -3,16 +3,15 @@
   import { HashRouter as Router, Routes, Route } from "react-router-dom";
   import './App.css';
 
-  import Login from './features/home/components/Login';
-  import SplashScreen from './features/home/components/SplashScreen';
   import CadastroUsuario from "./features/home/components/CadastroUsuario";
   import CadastroDeProdutos from "./features/home/components/CadastroDeProdutos";
-  import InserirProduto from "./features/storage/InserirProduto";
   import CadastroDeReceita from "./features/recipe/CadastroDeReceita";
-  import CadastroCompra from "./features/supplies/Compra";
   import CadastroReceitasPorAula from "./features/recipe/CadastroReceitaPorAula";
+  import CadastroCompra from "./features/supplies/Compra";
+  import GerenciarProdutos from "./features/storage/GerenciarProdutos";
+  import Login from './features/home/components/Login';
+  import SplashScreen from './features/home/components/SplashScreen';
   import Fornecedor from "./features/supplies/Fornecedor";
-  import RetirarProduto from "./features/storage/RetirarProduto";
   import { AuthProvider } from "./shared/context/AuthContext";
   import React from 'react';
   import { Toaster } from 'react-hot-toast';
@@ -83,7 +82,7 @@
                 path="/produtos/add"
                 element={
                   <PrivateRoute>
-                    <InserirProduto />
+                    <GerenciarProdutos />
                   </PrivateRoute>
                 }
               />
