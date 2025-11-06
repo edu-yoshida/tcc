@@ -4,7 +4,7 @@ import Sidebar from "../../shared/components/Sidebar";
 import ProdutoService from "../home/service/ProdutoService";
 import AdjustStockModal from "../../shared/components/AdjustStockModal";
 
-const InserirProduto = () => {
+const GerenciarProdutos = () => {
   // ESTADOS DE LISTAGEM E FILTRO
   const [produtos, setProdutos] = useState([]);
   const [produtosFiltrados, setProdutosFiltrados] = useState([]);
@@ -159,4 +159,4 @@ const InserirProduto = () => {
   );
 };
 
-export default InserirProduto;
+export default GerenciarProdutos;
