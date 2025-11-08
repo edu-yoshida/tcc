@@ -58,8 +58,8 @@ const Sidebar = () => {
             icon={FaBox}
             title="Produto Estoque"
             links={[
-              { label: "Cadastro de Produto", path: "/produtos" },
-              { label: "Gerenciar Produtos", path: "/produtos/add" },
+              { label: "Cadastrar Produto", path: "/produtos" },
+              { label: "Estoque Produtos", path: "/produtos/add" },
             ]}
           />
           <SidebarSection

@@ -1,0 +1,102 @@
+import React from "react";
+
+const EstoqueModal = ({ isOpen, onClose, produtoSelecionado }) => {
+  if (!isOpen || !produtoSelecionado) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+      <div className="bg-white w-full max-w-2xl rounded-xl shadow-lg p-6 relative">
+        {/* Título */}
+        <h2 className="text-2xl font-bold text-gray-800 mb-6 border-b pb-3">
+          Detalhes do Produto
+        </h2>
+
+        {/* Parte superior: imagem + informações básicas */}
+        <div className="flex items-center gap-6 mb-6">
+          {/* Imagem do produto */}
+          <div className="w-32 h-32 flex items-center justify-center bg-gray-100 rounded-md overflow-hidden border">
+            {produtoSelecionado.imagem ? (
+              <img
+                src={produtoSelecionado.imagem}
+                alt={produtoSelecionado.nome}
+                className="object-cover w-full h-full"
+              />
+            ) : (
+              <span className="text-gray-400 text-sm">Sem imagem</span>
+            )}
+          </div>
+
+          {/* Informações básicas */}
+          <div className="flex flex-col gap-2 text-gray-700 flex-1">
+            <div>
+              <span className="font-semibold">Nome:</span>{" "}
+              {produtoSelecionado.nome}
+            </div>
+            <div>
+              <span className="font-semibold">Categoria:</span>{" "}
+              {produtoSelecionado.categoria || "Não informada"}
+            </div>
+            <div>
+              <span className="font-semibold">Unidade de medida:</span>{" "}
+              {produtoSelecionado.unidadeMedida || "-"}
+            </div>
+            <div>
+              <span className="font-semibold">Contagem:</span>{" "}
+              {produtoSelecionado.contagem ?? "0"}
+            </div>
+          </div>
+        </div>
+
+        {/* Tabela de informações */}
+        <div className="overflow-x-auto border rounded-lg">
+          <table className="min-w-full text-sm divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-4 py-2 text-left font-semibold text-gray-700">
+                  Produto ID
+                </th>
+                <th className="px-4 py-2 text-left font-semibold text-gray-700">
+                  Qtd. Estoque
+                </th>
+                <th className="px-4 py-2 text-left font-semibold text-gray-700">
+                  Compra ID
+                </th>
+                <th className="px-4 py-2 text-left font-semibold text-gray-700">
+                  Validade
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              <tr>
+                <td className="px-4 py-2 text-gray-800">
+                  {produtoSelecionado.id || "-"}
+                </td>
+                <td className="px-4 py-2 text-gray-800">
+                  {produtoSelecionado.quantidadeEstoque ?? "0"}
+                </td>
+                <td className="px-4 py-2 text-gray-800">
+                  {produtoSelecionado.compraId || "-"}
+                </td>
+                <td className="px-4 py-2 text-gray-800">
+                  {produtoSelecionado.validade || "Sem validade"}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        {/* Rodapé */}
+        <div className="flex justify-end mt-6">
+          <button
+            onClick={onClose}
+            className="px-5 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400 transition font-medium"
+          >
+            Fechar
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default EstoqueModal;
