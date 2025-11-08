@@ -6,7 +6,7 @@
   import CadastroUsuario from "./features/home/components/CadastroUsuario";
   import CadastroDeProdutos from "./features/home/components/CadastroDeProdutos";
   import CadastroDeReceita from "./features/recipe/CadastroDeReceita";
-  import CadastroReceitasPorAula from "./features/recipe/CadastroReceitaPorAula";
+  import AulasReceitas from "./features/recipe/AulasReceitas";
   import CadastroCompra from "./features/supplies/Compra";
   import GerenciarProdutos from "./features/storage/GerenciarProdutos";
   import Login from './features/home/components/Login';
@@ -65,9 +65,9 @@
               <Route 
                 path="/CadastroUsuario" 
                 element={
-                  <PrivateRoute>
+                  // <PrivateRoute>
                     <CadastroUsuario />
-                  </PrivateRoute>
+                  // </PrivateRoute>
                 }
               />
               <Route
@@ -75,7 +75,7 @@
                 element={
                   <PrivateRoute>
                     <CadastroDeProdutos />
-                  </PrivateRoute>
+                  </PrivateRoute> 
                 }
               />
               <Route
@@ -98,7 +98,7 @@
                 path="/receitas/class"
                 element={
                   <PrivateRoute>
-                    <CadastroReceitasPorAula />
+                    <AulasReceitas />
                   </PrivateRoute>
                 }
               />
