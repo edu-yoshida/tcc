@@ -9,7 +9,7 @@ const CadastroDeReceita = () => {
   const [formState, setFormState] = useState({
     nome: '',
     descricao: '',
-    produtoIds: [],
+    produtos: [], // [{ produtoId, quantidade, nomeProduto, categoria }]
     tempoPreparo: '',
     rendimento: '',
     tipo: '',
@@ -24,34 +24,27 @@ const CadastroDeReceita = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormState((prev) => ({ ...prev, [name]: value }));
-
-    // Limpa o erro do campo conforme o usuário digita
     setErrors((prev) => ({ ...prev, [name]: '' }));
   };
 
-  // 🔎 Função de validação
   const validateForm = () => {
     const newErrors = {};
-
     if (!formState.nome.trim()) newErrors.nome = 'O nome da receita é obrigatório.';
     if (!formState.descricao.trim()) newErrors.descricao = 'A descrição é obrigatória.';
-    if (formState.produtoIds.length === 0) newErrors.produtoIds = 'Adicione pelo menos um ingrediente.';
+    if (formState.produtos.length === 0) newErrors.produtos = 'Adicione pelo menos um ingrediente.';
     if (!formState.tempoPreparo.trim()) newErrors.tempoPreparo = 'Informe o tempo de preparo.';
     if (!formState.rendimento.trim()) newErrors.rendimento = 'Informe o rendimento.';
     if (!formState.tipo.trim()) newErrors.tipo = 'Informe o tipo de receita.';
     if (!formState.professorReceita.trim()) newErrors.professorReceita = 'Informe o professor ou autor.';
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0; // retorna true se válido
+    return Object.keys(newErrors).length === 0;
   };
 
-  // ✅ Função para enviar ao backend
+  // ✅ Envio ao backend com produtoId + quantidade
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!validateForm()) {
-      return; // interrompe o envio se houver erros
-    }
+    if (!validateForm()) return;
 
     const receitaData = {
       nome: formState.nome,
@@ -60,7 +53,10 @@ const CadastroDeReceita = () => {
       rendimento: formState.rendimento,
       tipo: formState.tipo,
       professorReceita: formState.professorReceita,
-      produtoIds: formState.produtoIds.map((ing) => ing.id),
+      produtos: formState.produtos.map((p) => ({
+        produtoId: p.produtoId,
+        quantidade: p.quantidade,
+      })),
     };
 
     try {
@@ -71,7 +67,7 @@ const CadastroDeReceita = () => {
       setFormState({
         nome: '',
         descricao: '',
-        produtoIds: [],
+        produtos: [],
         tempoPreparo: '',
         rendimento: '',
         tipo: '',
@@ -90,24 +86,33 @@ const CadastroDeReceita = () => {
   const openAdjustStockModal = () => setIsModalOpen(true);
   const closeAdjustStockModal = () => setIsModalOpen(false);
 
+  // ✅ Recebe ingredientes do modal e adapta para o novo formato
   const handleAddIngredients = (ingredientesSelecionados) => {
+    const novos = ingredientesSelecionados.map((ing) => ({
+      produtoId: ing.id,
+      quantidade: ing.quantidadeAdicionar,
+      nomeProduto: ing.nomeProduto,
+      categoria: ing.categoria,
+    }));
+
     setFormState((prev) => ({
       ...prev,
-      produtoIds: [...prev.produtoIds, ...ingredientesSelecionados],
+      produtos: [...prev.produtos, ...novos],
     }));
+
     setIsModalOpen(false);
-    setErrors((prev) => ({ ...prev, produtoIds: '' }));
+    setErrors((prev) => ({ ...prev, produtos: '' }));
   };
 
   const handleRemoveIngredient = (indexToRemove) => {
     setFormState((prev) => ({
       ...prev,
-      produtoIds: prev.produtoIds.filter((_, index) => index !== indexToRemove),
+      produtos: prev.produtos.filter((_, index) => index !== indexToRemove),
     }));
   };
 
   return (
-    <div className="flex w-screen h-screen overflow-hidden bg-[#fff9d6] text-gray-800 font-sans">
+    <div className="flex w-screen h-screen overflow-hidden bg-orange-100 text-gray-800 font-sans">
       {/* SIDEBAR */}
       <aside className="w-64 shrink-0">
         <div className="h-full overflow-y-auto">
@@ -117,17 +122,15 @@ const CadastroDeReceita = () => {
 
       {/* CONTEÚDO */}
       <div className="flex-1 min-w-0 flex flex-col">
-        {/* TOPBAR */}
-        <div className="h-28 shrink-0 bg-gradient-to-r from-orange-400 via-yellow-500 to-orange-600 flex flex-col items-center justify-center text-white rounded-b-3xl overflow-hidden shadow-lg">
+        <div className="h-28 bg-gradient-to-r from-orange-400 via-yellow-500 to-orange-600 flex flex-col items-center justify-center text-white rounded-b-3xl shadow-lg">
           <h2 className="text-2xl font-extrabold tracking-tight">Cadastro de Receitas</h2>
           <p className="text-sm opacity-90">GastroFlow</p>
         </div>
 
-        {/* FORMULÁRIO */}
         <div className="flex-1 flex items-start justify-center md:p-6 overflow-y-auto relative">
           <div className="w-full max-w-3xl bg-white rounded-xl shadow-2xl p-6 transition-all duration-300">
             <form onSubmit={handleSubmit} className="space-y-5">
-              
+
               {/* Nome */}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1">Nome da Receita</label>
@@ -151,44 +154,33 @@ const CadastroDeReceita = () => {
                 <button
                   type="button"
                   onClick={openAdjustStockModal}
-                  className="py-2 px-4 rounded-md text-sm font-medium text-white bg-green-500 hover:bg-green-600 transition flex items-center justify-center space-x-1"
+                  className="py-2 px-4 rounded-md text-sm font-medium text-white bg-green-500 hover:bg-green-600 transition flex items-center justify-center"
                 >
                   <FaPlusCircle className="mr-1" size={16} /> Adicionar Ingredientes
                 </button>
 
-                {errors.produtoIds && (
-                  <p className="text-red-500 text-xs mt-1">{errors.produtoIds}</p>
+                {errors.produtos && (
+                  <p className="text-red-500 text-xs mt-1">{errors.produtos}</p>
                 )}
 
-                {formState.produtoIds.length > 0 && (
+                {formState.produtos.length > 0 && (
                   <div className="mt-4 border border-gray-200 rounded-xl bg-gradient-to-br from-white to-gray-50 p-4 shadow-sm">
-                    <h3 className="text-lg font-semibold mb-3 text-gray-800 flex items-center">
-                      Ingredientes Selecionados
-                    </h3>
+                    <h3 className="text-lg font-semibold mb-3 text-gray-800">Ingredientes Selecionados</h3>
 
                     <ul className="divide-y divide-gray-200">
-                      {formState.produtoIds.map((item, index) => (
-                        <li
-                          key={index}
-                          className="flex justify-between items-center py-2 px-2 hover:bg-orange-50 rounded-lg transition-all duration-150"
-                        >
+                      {formState.produtos.map((item, index) => (
+                        <li key={index} className="flex justify-between items-center py-2 px-2 hover:bg-orange-50 rounded-lg transition">
                           <div className="flex flex-col">
-                            <span className="font-bold text-gray-800 text-lg">
-                              {item.nomeProduto}
-                            </span>
+                            <span className="font-bold text-gray-800 text-lg">{item.nomeProduto}</span>
                             <div className="text-xs text-gray-500">
-                              {item.categoria && (
-                                <span className="mr-2">
-                                  Categoria: <span className="text-gray-700">{item.categoria}</span>
-                                </span>
-                              )}
+                              Categoria: <span className="text-gray-700">{item.categoria}</span> | 
+                              Quantidade: <span className="text-gray-700">{item.quantidade}</span>
                             </div>
                           </div>
-
                           <button
                             type="button"
                             onClick={() => handleRemoveIngredient(index)}
-                            className="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-100 transition-all duration-200"
+                            className="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-100 transition"
                             title="Remover ingrediente"
                           >
                             <FaTrashAlt size={14} />
@@ -203,12 +195,12 @@ const CadastroDeReceita = () => {
               {/* Descrição */}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1">Descrição</label>
-                <input
+                <textarea
                   name="descricao"
                   value={formState.descricao}
                   onChange={handleChange}
                   placeholder="Adicione uma breve descrição"
-                  className={`block w-full rounded-lg border p-3 text-sm transition h-24 ${
+                  className={`block w-full rounded-lg border p-3 text-sm h-24 transition ${
                     errors.descricao ? 'border-red-500' : 'border-gray-300'
                   }`}
                 />
@@ -231,9 +223,7 @@ const CadastroDeReceita = () => {
                       errors.tempoPreparo ? 'border-red-500' : 'border-gray-300'
                     }`}
                   />
-                  {errors.tempoPreparo && (
-                    <p className="text-red-500 text-xs mt-1">{errors.tempoPreparo}</p>
-                  )}
+                  {errors.tempoPreparo && <p className="text-red-500 text-xs mt-1">{errors.tempoPreparo}</p>}
                 </div>
 
                 <div>
@@ -250,17 +240,13 @@ const CadastroDeReceita = () => {
                       errors.rendimento ? 'border-red-500' : 'border-gray-300'
                     }`}
                   />
-                  {errors.rendimento && (
-                    <p className="text-red-500 text-xs mt-1">{errors.rendimento}</p>
-                  )}
+                  {errors.rendimento && <p className="text-red-500 text-xs mt-1">{errors.rendimento}</p>}
                 </div>
               </div>
 
               {/* Tipo */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">
-                  Tipo de Receita
-                </label>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Tipo de Receita</label>
                 <input
                   type="text"
                   name="tipo"
@@ -276,9 +262,7 @@ const CadastroDeReceita = () => {
 
               {/* Professor */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">
-                  Professor/Autor
-                </label>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Professor/Autor</label>
                 <input
                   type="text"
                   name="professorReceita"
