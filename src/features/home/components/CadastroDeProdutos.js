@@ -7,8 +7,7 @@ const CadastroDeProdutos = () => {
   const [formState, setFormState] = useState({
     nome: '',
     unidadeMedida: '',
-    categoria: '',
-    validade: ''
+    categoria: ''
   });
 
   const [error, setError] = React.useState("");
