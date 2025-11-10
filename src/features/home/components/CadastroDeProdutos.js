@@ -7,7 +7,7 @@ const CadastroDeProdutos = () => {
   const [formState, setFormState] = useState({
     nome: '',
     unidadeMedida: '',
-    categoria: '',
+    categoria: ''
   });
 
   const [error, setError] = React.useState("");
@@ -148,7 +148,6 @@ const CadastroDeProdutos = () => {
                 </div>
               </form>
             </div>
-
             {/* Logo */}
             <div className="hidden md:flex flex-1 items-center justify-center rounded-2xl p-6">
               <img
