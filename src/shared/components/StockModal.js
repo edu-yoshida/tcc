@@ -112,6 +112,7 @@ const StockModal = ({ isOpen, onClose, onAddIngredients }) => {
                 <tr>
                   <th className="text-left px-4 py-2">Produto</th>
                   <th className="text-left px-4 py-2">Categoria</th>
+                  <th className="text-left px-4 py-2">medida</th>
                   <th className="text-left px-4 py-2">Quantidade</th>
                 </tr>
               </thead>
@@ -120,9 +121,8 @@ const StockModal = ({ isOpen, onClose, onAddIngredients }) => {
                   produtosFiltrados.map((produto) => (
                     <tr key={produto.id} className="border-t">
                       <td className="px-4 py-2">{produto.nome}</td>
-                      <td className="px-4 py-2">
-                        {produto.categoria || "Sem categoria"}
-                      </td>
+                      <td className="px-4 py-2">{produto.categoria}</td>
+                      <td className="px-4 py-2">{produto.unidadeMedida}</td>
                       <td className="px-4 py-2">
                         <input
                           type="number"
