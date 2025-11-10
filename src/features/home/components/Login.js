@@ -118,6 +118,18 @@ export default function Login() {
             Entrar
           </button>
         </form>
+        <div className="flex items-center gap-2 my-6">
+          <hr className="flex-1 border-gray-300" />
+          <span className="text-gray-500 text-sm">ou</span>
+          <hr className="flex-1 border-gray-300" />
+        </div>
+        <button
+          onClick={() => navigate("/CadastroUsuario")}
+          className="block mx-auto mt-6 text-orange-600 font-bold cursor-pointer 
+                               hover:text-orange-500 hover:underline"
+        >
+          Ainda não possui uma conta? Cadastre-se!
+        </button>
       </div>
     </div>
   );
