@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import ReceitaService from "../../features/home/service/ReceitaService"; // ajuste o caminho se necessário
+import ReceitaService from "../../features/home/service/ReceitaService";
 
-const RecipeModal = ({ isOpen, onClose, onAddReceita }) => {
+const RecipeModal = ({ isOpen, onClose, onAddReceitas }) => {
   const [receitas, setReceitas] = useState([]);
   const [filtroNome, setFiltroNome] = useState("");
   const [loading, setLoading] = useState(false);
+  const [selecionadas, setSelecionadas] = useState({}); 
 
-  // Buscar receitas ao abrir o modal
   useEffect(() => {
     if (isOpen) {
       fetchReceitas();
@@ -16,7 +16,7 @@ const RecipeModal = ({ isOpen, onClose, onAddReceita }) => {
   const fetchReceitas = async () => {
     setLoading(true);
     try {
-      const response = await ReceitaService.GetReceitas(); // método GET no backend
+      const response = await ReceitaService.GetRecipes();
       setReceitas(response);
     } catch (error) {
       console.error("Erro ao buscar receitas:", error);
@@ -27,16 +27,48 @@ const RecipeModal = ({ isOpen, onClose, onAddReceita }) => {
 
   if (!isOpen) return null;
 
-  // Aplicar filtro de nome
   const receitasFiltradas = receitas.filter((r) =>
     r.nome.toLowerCase().includes(filtroNome.toLowerCase().trim())
   );
 
+  // Atualiza a quantidade de uma receita
+  const handleQuantidadeChange = (id, novaQtd) => {
+    setSelecionadas((prev) => ({
+      ...prev,
+      [id]: Math.max(0, parseInt(novaQtd) || 0), // não deixa quantidade negativa
+    }));
+  };
+
+  // Envia todas as receitas selecionadas com suas quantidades
+  const handleConfirmar = () => {
+    const selecionadasArray = [];
+
+    // Para cada receita selecionada, adiciona o mesmo objeto 'qtd' vezes
+    Object.entries(selecionadas).forEach(([id, qtd]) => {
+      const receita = receitas.find((r) => r.id === parseInt(id));
+      if (receita && qtd > 0) {
+        for (let i = 0; i < qtd; i++) {
+          selecionadasArray.push({ ...receita });
+        }
+      }
+    });
+
+    if (selecionadasArray.length === 0) {
+      alert("Selecione pelo menos uma receita!");
+      return;
+    }
+
+    onAddReceitas(selecionadasArray);
+
+    setSelecionadas(0);
+    onClose();
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-      <div className="bg-white w-full max-w-xl rounded-lg shadow-lg p-6 relative">
+      <div className="bg-white w-full max-w-2xl rounded-lg shadow-lg p-6 relative">
         <h2 className="text-xl font-bold mb-4 text-gray-800">
-          Buscar Receitas
+          Selecionar Receitas
         </h2>
 
         {/* Campo de busca */}
@@ -58,7 +90,7 @@ const RecipeModal = ({ isOpen, onClose, onAddReceita }) => {
               <thead className="bg-gray-100">
                 <tr>
                   <th className="text-left px-4 py-2">Nome da Receita</th>
-                  <th className="text-center px-4 py-2">Ações</th>
+                  <th className="text-center px-4 py-2">Quantidade</th>
                 </tr>
               </thead>
               <tbody>
@@ -67,15 +99,15 @@ const RecipeModal = ({ isOpen, onClose, onAddReceita }) => {
                     <tr key={receita.id} className="border-t">
                       <td className="px-4 py-2">{receita.nome}</td>
                       <td className="px-4 py-2 text-center">
-                        <button
-                          onClick={() => {
-                            onAddReceita(receita);
-                            onClose();
-                          }}
-                          className="px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 transition"
-                        >
-                          Adicionar
-                        </button>
+                        <input
+                          type="number"
+                          min="0"
+                          value={selecionadas[receita.id] || ""}
+                          onChange={(e) =>
+                            handleQuantidadeChange(receita.id, e.target.value)
+                          }
+                          className="w-20 text-center border border-gray-300 rounded-md p-1 focus:ring-orange-500 focus:border-orange-500"
+                        />
                       </td>
                     </tr>
                   ))
@@ -94,13 +126,19 @@ const RecipeModal = ({ isOpen, onClose, onAddReceita }) => {
           </div>
         )}
 
-        {/* Botão de fechar */}
-        <div className="flex justify-end mt-6">
+        {/* Rodapé */}
+        <div className="flex justify-end gap-3 mt-6">
           <button
             onClick={onClose}
             className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition"
           >
-            Fechar
+            Cancelar
+          </button>
+          <button
+            onClick={handleConfirmar}
+            className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition font-semibold"
+          >
+            Confirmar Seleção
           </button>
         </div>
       </div>
