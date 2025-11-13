@@ -11,7 +11,7 @@ async function RegisterRecipe({nome, descricao, produtos, tempoPreparo, rendimen
 
 async function GetRecipes() {
     try {
-        const response = await api.get("/v1/api/receitas");
+        const response = await api.get("/v1/api/receitas/listar");
         return response.data || [];
     } catch (error) {
         throw error;
