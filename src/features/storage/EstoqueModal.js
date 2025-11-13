@@ -40,10 +40,6 @@ const EstoqueModal = ({ isOpen, onClose, produtoSelecionado }) => {
               <span className="font-semibold">Unidade de medida:</span>{" "}
               {produtoSelecionado.unidadeMedida || "-"}
             </div>
-            <div>
-              <span className="font-semibold">Contagem:</span>{" "}
-              {produtoSelecionado.contagem ?? "0"}
-            </div>
           </div>
         </div>
 
@@ -58,12 +54,6 @@ const EstoqueModal = ({ isOpen, onClose, produtoSelecionado }) => {
                 <th className="px-4 py-2 text-left font-semibold text-gray-700">
                   Qtd. Estoque
                 </th>
-                <th className="px-4 py-2 text-left font-semibold text-gray-700">
-                  Compra ID
-                </th>
-                <th className="px-4 py-2 text-left font-semibold text-gray-700">
-                  Validade
-                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -73,12 +63,6 @@ const EstoqueModal = ({ isOpen, onClose, produtoSelecionado }) => {
                 </td>
                 <td className="px-4 py-2 text-gray-800">
                   {produtoSelecionado.quantidadeEstoque ?? "0"}
-                </td>
-                <td className="px-4 py-2 text-gray-800">
-                  {produtoSelecionado.compraId || "-"}
-                </td>
-                <td className="px-4 py-2 text-gray-800">
-                  {produtoSelecionado.validade || "Sem validade"}
                 </td>
               </tr>
             </tbody>
