@@ -3,6 +3,7 @@ import ProdutoService from "../../features/home/service/ProdutoService";
 
 const StockModal = ({ isOpen, onClose, onAddIngredients }) => {
   const [produtos, setProdutos] = useState([]);
+  const [valores, setValores] = useState({});
   const [quantidades, setQuantidades] = useState({});
   const [loading, setLoading] = useState(false);
 
@@ -37,25 +38,40 @@ const StockModal = ({ isOpen, onClose, onAddIngredients }) => {
     }));
   };
 
-  // Adiciona ingredientes à receita
+  // Atualiza valor digitado 💰
+  const handleValorChange = (id, value) => {
+    setValores((prev) => ({
+      ...prev,
+      [id]: value,
+    }));
+  };
+
+  // Adiciona produtos selecionados
   const handleAdd = () => {
     const selecionados = produtos
       .filter(
         (produto) =>
-          quantidades[produto.id] && Number(quantidades[produto.id]) > 0
+          quantidades[produto.id] &&
+          Number(quantidades[produto.id]) > 0 &&
+          valores[produto.id] &&
+          Number(valores[produto.id]) > 0
       )
       .map((produto) => ({
         id: produto.id,
         nomeProduto: produto.nome,
         categoria: produto.categoria || "Sem categoria",
-        quantidadeAdicionar: Number(quantidades[produto.id]),
+        quantidadeEstoque: Number(quantidades[produto.id]),
+        valor: Number(valores[produto.id]),
       }));
 
-    if (selecionados.length > 0) {
-      onAddIngredients(selecionados);
+    if (selecionados.length === 0) {
+      alert("⚠️ Informe quantidade e valor para pelo menos um produto.");
+      return;
     }
 
+    onAddIngredients(selecionados);
     setQuantidades({});
+    setValores({});
     onClose();
   };
 
@@ -63,24 +79,20 @@ const StockModal = ({ isOpen, onClose, onAddIngredients }) => {
 
   // 🔎 Aplicar filtros de nome e categoria
   const produtosFiltrados = produtos.filter((p) => {
-
-    const nomeMatch =
-      !filtroNome || // se o filtro está vazio → aceitar tudo
-      (p.nome && p.nome.includes(filtroNome.trim()));
-
+    const nomeMatch = (p.nome?.toLowerCase() ?? '')
+      .includes(filtroNome.toLowerCase().trim());
     const categoriaMatch =
       filtroCategoria === "" ||
-      (p.categoria && p.categoria === filtroCategoria);
-
+      (p.categoria &&
+         p.categoria.toLowerCase() === filtroCategoria.toLowerCase());
     return nomeMatch && categoriaMatch;
   });
 
-
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-      <div className="bg-white w-full max-w-2xl rounded-lg shadow-lg p-6 relative">
+      <div className="bg-white w-full max-w-3xl rounded-lg shadow-lg p-6 relative">
         <h2 className="text-xl font-bold mb-4 text-gray-800">
-          Adicionar Ingredientes à Receita
+          Adicionar Produtos à Compra
         </h2>
 
         {/* 🔎 Campos de filtro */}
@@ -115,18 +127,19 @@ const StockModal = ({ isOpen, onClose, onAddIngredients }) => {
                 <tr>
                   <th className="text-left px-4 py-2">Produto</th>
                   <th className="text-left px-4 py-2">Categoria</th>
-                  <th className="text-left px-4 py-2">medida</th>
-                  <th className="text-left px-4 py-2">Quantidade</th>
+                  <th className="text-center px-4 py-2">Quantidade</th>
+                  <th className="text-center px-4 py-2">Valor (R$)</th>
                 </tr>
               </thead>
               <tbody>
                 {produtosFiltrados.length > 0 ? (
                   produtosFiltrados.map((produto) => (
-                    <tr key={produto.id} className="border-t">
+                    <tr key={produto.id} className="border-t hover:bg-gray-50">
                       <td className="px-4 py-2">{produto.nome}</td>
-                      <td className="px-4 py-2">{produto.categoria}</td>
-                      <td className="px-4 py-2">{produto.unidadeMedida}</td>
                       <td className="px-4 py-2">
+                        {produto.categoria || "Sem categoria"}
+                      </td>
+                      <td className="px-4 py-2 text-center">
                         <input
                           type="number"
                           min="0"
@@ -138,12 +151,25 @@ const StockModal = ({ isOpen, onClose, onAddIngredients }) => {
                           className="w-20 border rounded-md p-1 text-center"
                         />
                       </td>
+                      <td className="px-4 py-2 text-center">
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={valores[produto.id] || ""}
+                          onChange={(e) =>
+                            handleValorChange(produto.id, e.target.value)
+                          }
+                          placeholder="0.00"
+                          className="w-24 border rounded-md p-1 text-center"
+                        />
+                      </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
                     <td
-                      colSpan="3"
+                      colSpan="4"
                       className="text-center text-gray-500 py-4 italic"
                     >
                       Nenhum produto encontrado.
