@@ -27,9 +27,12 @@ const RecipeModal = ({ isOpen, onClose, onAddReceitas }) => {
 
   if (!isOpen) return null;
 
-  const receitasFiltradas = receitas.filter((r) =>
-    r.nome.toLowerCase().includes(filtroNome.toLowerCase().trim())
-  );
+  const receitasFiltradas = receitas.filter((r) => {
+  if (!r.nome) return false;    // evita erro se nome for null
+  if (!filtroNome) return true; // se filtro vazio, retorna tudo
+  return r.nome.includes(filtroNome.trim());
+});
+
 
   // Atualiza a quantidade de uma receita
   const handleQuantidadeChange = (id, novaQtd) => {

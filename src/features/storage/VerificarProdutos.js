@@ -48,19 +48,19 @@ const VerificarProdutos = () => {
   // FILTRO
   useEffect(() => {
     let listaFiltrada = produtos.filter((produto) =>
-      produto.nome.toLowerCase().includes(filtroNome.toLowerCase())
+      produto.nome && filtroNome ? produto.nome.includes(filtroNome) : true
     );
 
     if (filtroCategoria) {
       listaFiltrada = listaFiltrada.filter(
         (produto) =>
-          produto.categoria &&
-          produto.categoria.toLowerCase() === filtroCategoria.toLowerCase()
+          produto.categoria && produto.categoria === filtroCategoria
       );
     }
 
     setProdutosFiltrados(listaFiltrada);
   }, [filtroNome, filtroCategoria, produtos]);
+
 
   return (
     <div className="flex w-screen h-screen overflow-hidden bg-orange-100 text-gray-800 font-sans">
@@ -72,7 +72,7 @@ const VerificarProdutos = () => {
 
       <div className="flex-1 min-w-0 flex flex-col">
         <div className="h-28 shrink-0 bg-gradient-to-r from-orange-400 via-yellow-500 to-orange-600 flex flex-col items-center justify-center text-white rounded-b-3xl overflow-hidden">
-          <h2 className="text-lg font-bold">Verificar Estoque - GastroFlow</h2>
+          <h2 className="text-lg font-bold">Verificar Estoque</h2>
         </div>
 
         <div className="flex-1 flex p-6 bg-orange-100 items-center justify-center overflow-auto">
@@ -143,15 +143,15 @@ const VerificarProdutos = () => {
               )}
             </div>
           </div>
-          
+
         </div>
         <div className="hidden md:flex items-center justify-center rounded-2xl p-6">
-            <img
-              src={LogoGastroFlow}
-              alt="Logo"
-              className="hidden md:block absolute right-10 bottom-10 w-40 opacity-80"
-            />
-          </div>
+          <img
+            src={LogoGastroFlow}
+            alt="Logo"
+            className="hidden md:block absolute right-10 bottom-10 w-40 opacity-80"
+          />
+        </div>
       </div>
 
       {produtoSelecionado && (
