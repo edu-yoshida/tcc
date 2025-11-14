@@ -63,15 +63,18 @@ const StockModal = ({ isOpen, onClose, onAddIngredients }) => {
 
   // 🔎 Aplicar filtros de nome e categoria
   const produtosFiltrados = produtos.filter((p) => {
-    const nomeMatch = p.nome
-      .toLowerCase()
-      .includes(filtroNome.toLowerCase().trim());
+
+    const nomeMatch =
+      !filtroNome || // se o filtro está vazio → aceitar tudo
+      (p.nome && p.nome.includes(filtroNome.trim()));
+
     const categoriaMatch =
       filtroCategoria === "" ||
-      (p.categoria &&
-        p.categoria.toLowerCase() === filtroCategoria.toLowerCase());
+      (p.categoria && p.categoria === filtroCategoria);
+
     return nomeMatch && categoriaMatch;
   });
+
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">

@@ -1,28 +1,82 @@
-import React, { useState } from 'react';
-import Sidebar from '../../shared/components/Sidebar';
-import LogoGastroFlow from '../../assets/LogoGastroFlow.png';
+import React, { useState } from "react";
+import Sidebar from "../../shared/components/Sidebar";
+import LogoGastroFlow from "../../assets/LogoGastroFlow.png";
+import FornecedorService from "./Service/FornecedorService";
 
 const Fornecedor = () => {
   const [formState, setFormState] = useState({
-    nomeFornecedor: '',
-    cnpj: '',
-    telefone: '',
-    email: '',
-    produtoFornecido: '',
+    razaoSocial: "",
+    nomeFantasia: "",
+    telefone: "",
+    endereco: "",
+    email: "",
   });
+
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormState((prev) => ({ ...prev, [name]: value }));
+
+    // Máscara simples para telefone
+    if (name === "telefone") {
+      let v = value.replace(/\D/g, ""); // Remove tudo que não for número
+      v = v.replace(/^(\d{2})(\d)/g, "($1) $2");
+      v = v.replace(/(\d{5})(\d{4})$/, "$1-$2");
+      setFormState((prev) => ({ ...prev, telefone: v }));
+    } else {
+      setFormState((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Fornecedor Cadastrado:', formState);
+
+    const { razaoSocial, telefone, endereco, email } = formState;
+    if (!razaoSocial || !telefone || !endereco || !email) {
+      setError("Preencha todos os campos obrigatórios!");
+      return;
+    }
+
+    try {
+      await FornecedorService.RegisterFornecedor(formState);
+      setSuccess(`Fornecedor "${razaoSocial}" cadastrado com sucesso!`);
+      setFormState({
+        razaoSocial: "",
+        nomeFantasia: "",
+        telefone: "",
+        endereco: "",
+        email: "",
+      });
+    } catch (err) {
+      console.error(err);
+      if (err.response?.status === 403) {
+        setError("Acesso negado! Verifique suas credenciais.");
+      } else if (err.response?.status === 400) {
+        setError("Dados inválidos! Verifique as informações preenchidas.");
+      } else {
+        setError("Erro ao cadastrar fornecedor. Tente novamente.");
+      }
+    } finally {
+      setTimeout(() => {
+        setError("");
+        setSuccess("");
+      }, 4000);
+    }
+  };
+
+  const handleCancel = () => {
+    setFormState({
+      razaoSocial: "",
+      nomeFantasia: "",
+      telefone: "",
+      endereco: "",
+      email: "",
+    });
   };
 
   return (
-    <div className="flex w-screen h-screen overflow-hidden bg-[#fff3e0] text-gray-800 font-sans">
+    <div className="flex w-screen h-screen overflow-hidden bg-[#ffffff] text-gray-800 font-sans">
       {/* Sidebar */}
       <aside className="w-64 shrink-0">
         <div className="h-full overflow-y-auto">
@@ -30,110 +84,120 @@ const Fornecedor = () => {
         </div>
       </aside>
 
-      {/* Conteúdo principal */}
-      <div className="flex-1 min-w-0 flex flex-col">
+      {/* Direita */}
+      <div className="flex-1 min-w-0 flex flex-col overflow-hidden bg-orange-100">
         {/* Topbar */}
-        <div className="h-16 shrink-0 bg-orange-600 text-white flex items-center justify-center">
-          <h2 className="text-lg font-bold">Cadastro de Fornecedor - Gastroflow</h2>
+        <div className="h-28 shrink-0 bg-gradient-to-r from-orange-400 via-yellow-500 to-orange-600 flex flex-col items-center justify-center text-white rounded-b-3xl overflow-hidden">
+          <h2 className="text-2xl font-bold">Cadastrar Fornecedor</h2>
         </div>
 
-        {/* Área do conteúdo */}
-        <div className="flex-1 flex items-center justify-center p-6 bg-orange-100 relative">
-          <div className="w-full max-w-lg bg-[#ffe0b2] rounded-lg shadow-lg p-8">
-            <h3 className="text-center text-lg font-bold text-orange-700 mb-5">
-              Cadastro de Fornecedor
-            </h3>
+        {/* Conteúdo */}
+        <div className="flex-1 min-h-0 flex items-center justify-center p-4 md:p-6 bg-orange-100 relative">
+          <div className="w-full max-w-6xl mx-auto flex flex-col md:flex-row gap-8">
+            {/* Formulário */}
+            <div className="w-full md:w-[520px] flex-shrink-0 bg-white rounded-2xl p-8 shadow-lg flex flex-col">
+              <h3 className="text-xl font-semibold text-gray-800 mb-6">
+                Cadastro de Fornecedor
+              </h3>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Nome do Fornecedor */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Nome do Fornecedor
-                </label>
-                <input
-                  type="text"
-                  name="nomeFornecedor"
-                  value={formState.nomeFornecedor}
-                  onChange={handleChange}
-                  placeholder="Ex: Distribuidora Silva"
-                  className="block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-orange-500 text-sm"
-                />
-              </div>
+              {error && (
+                <p className="text-red-600 text-center font-semibold">{error}</p>
+              )}
+              {success && (
+                <p className="text-green-600 text-center font-semibold">{success}</p>
+              )}
 
-              {/* CNPJ */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  CNPJ
-                </label>
-                <input
-                  type="text"
-                  name="cnpj"
-                  value={formState.cnpj}
-                  onChange={handleChange}
-                  placeholder="Ex: 00.000.000/0001-00"
-                  className="block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-orange-500 text-sm"
-                />
-              </div>
+              <form onSubmit={handleSubmit} className="space-y-5 w-full">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Razão Social
+                  </label>
+                  <input
+                    type="text"
+                    name="razaoSocial"
+                    value={formState.razaoSocial}
+                    onChange={handleChange}
+                    placeholder="Ex: Itaú Unibanco Banco Múltiplo S.A."
+                    className="block w-full rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-orange-400 focus:border-orange-400 p-2 text-sm"
+                  />
+                </div>
 
-              {/* Telefone */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Telefone
-                </label>
-                <input
-                  type="text"
-                  name="telefone"
-                  value={formState.telefone}
-                  onChange={handleChange}
-                  placeholder="Ex: (85) 91234-5678"
-                  className="block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-orange-500 text-sm"
-                />
-              </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Nome Fantasia (opcional)
+                  </label>
+                  <input
+                    type="text"
+                    name="nomeFantasia"
+                    value={formState.nomeFantasia}
+                    onChange={handleChange}
+                    placeholder="Ex: Itaú"
+                    className="block w-full rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-orange-400 focus:border-orange-400 p-2 text-sm"
+                  />
+                </div>
 
-              {/* E-mail */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  E-mail
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formState.email}
-                  onChange={handleChange}
-                  placeholder="Ex: fornecedor@email.com"
-                  className="block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-orange-500 text-sm"
-                />
-              </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Telefone
+                  </label>
+                  <input
+                    type="text"
+                    name="telefone"
+                    maxLength="15"
+                    value={formState.telefone}
+                    onChange={handleChange}
+                    placeholder="(11) 98765-4321"
+                    className="block w-full rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-orange-400 focus:border-orange-400 p-2 text-sm"
+                  />
+                </div>
 
-              {/* Produto Fornecido */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Produto Fornecido
-                </label>
-                <input
-                  type="text"
-                  name="produtoFornecido"
-                  value={formState.produtoFornecido}
-                  onChange={handleChange}
-                  placeholder="Ex: Arroz, Feijão..."
-                  className="block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-orange-500 text-sm"
-                />
-              </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Endereço
+                  </label>
+                  <input
+                    type="text"
+                    name="endereco"
+                    value={formState.endereco}
+                    onChange={handleChange}
+                    placeholder="Rua das Flores, 123"
+                    className="block w-full rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-orange-400 focus:border-orange-400 p-2 text-sm"
+                  />
+                </div>
 
-              {/* Botão */}
-              <div className="flex justify-center pt-4">
-                <button
-                  type="submit"
-                  className="py-2 px-6 rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none"
-                >
-                  Cadastrar Fornecedor
-                </button>
-              </div>
-            </form>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formState.email}
+                    onChange={handleChange}
+                    placeholder="fornecedor@gmail.com"
+                    className="block w-full rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-orange-400 focus:border-orange-400 p-2 text-sm"
+                  />
+                </div>
+
+                {/* Botões */}
+                <div className="flex flex-col space-y-3 pt-2">
+                  <button
+                    type="submit"
+                    className="py-2 px-4 rounded-lg shadow-md text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 focus:ring-2 focus:ring-orange-400 transition"
+                  >
+                    Cadastrar Fornecedor
+                  </button>
+                </div>
+              </form>
+            </div>
 
             {/* Logo */}
-            <div className="flex justify-center mt-6">
-              <img src={LogoGastroFlow} alt="Logo GastroFlow" className="h-20 object-contain" />
+            <div className="hidden md:flex flex-1 items-center justify-center rounded-2xl p-6">
+              <img
+                src={LogoGastroFlow}
+                alt="Logo"
+                className="flex-1 w-full h-[21rem] object-contain"
+              />
             </div>
           </div>
         </div>

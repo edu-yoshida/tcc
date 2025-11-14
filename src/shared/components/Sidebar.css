@@ -1,0 +1,35 @@
+@keyframes lavaFlow {
+  0% {
+    background-position: 0% 50%;
+    background-size: 800% 800%;
+  }
+  25% {
+    background-position: 50% 60%;
+    background-size: 780% 820%;
+  }
+  50% {
+    background-position: 100% 50%;
+    background-size: 820% 780%;
+  }
+  75% {
+    background-position: 50% 40%;
+    background-size: 790% 810%;
+  }
+  100% {
+    background-position: 0% 50%;
+    background-size: 800% 800%;
+  }
+}
+
+.animate-gradient {
+  background: linear-gradient(
+    60deg,
+    #ff6a00,
+    #f3a914,
+    #ff6a00
+    
+  );
+  background-size: 800% 800%;
+  animation: lavaFlow 5s linear infinite;
+  transition: background 1s ease;
+}
