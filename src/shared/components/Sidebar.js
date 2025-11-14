@@ -96,6 +96,7 @@ const Sidebar = () => {
               links={[
                 { label: "Fornecedor", path: "/fornecedor" },
                 { label: "Compra", path: "/compra" },
+                { label: "Histórico de Compra", path: "/historicoCompra" },
               ]}
             />
           </div>

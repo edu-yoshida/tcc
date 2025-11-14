@@ -2,15 +2,12 @@ import api from "../../../shared/utils/api";
 
 async function cadastrarEntrada({ dataEntrada, observacao, fornecedorId, produtos }) {
   try {
-    // 'produtos' deve ser uma lista de objetos no formato:
-    // [{ produtoId: 1, quantidade: 10 }, { produtoId: 2, quantidade: 5 }]
     const response = await api.post("/v1/api/entradas", {
       dataEntrada,
       observacao,
       fornecedorId,
       produtos,
     });
-
     return response.data;
   } catch (error) {
     console.error("Erro ao cadastrar entrada:", error);
@@ -18,4 +15,39 @@ async function cadastrarEntrada({ dataEntrada, observacao, fornecedorId, produto
   }
 }
 
-export default { cadastrarEntrada };
+async function getAllEntradas() {
+  try {
+    const response = await api.get("/v1/api/entradas/todas");
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao buscar entradas:", error);
+    throw error;
+  }
+}
+
+async function getEntradaById(id) {
+  try {
+    const response = await api.get(`/v1/api/entradas/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Erro ao buscar entrada ${id}:`, error);
+    throw error;
+  }
+}
+
+async function getEntradasByProdutoId(produtoId) {
+  try {
+    const response = await api.get(`/v1/api/entradas/produto/${produtoId}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Erro ao buscar entradas por produto ${produtoId}:`, error);
+    throw error;
+  }
+}
+
+export default {
+  cadastrarEntrada,
+  getAllEntradas,
+  getEntradaById,
+  getEntradasByProdutoId
+};

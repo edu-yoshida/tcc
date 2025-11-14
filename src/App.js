@@ -19,7 +19,9 @@
   import useAuthStore from './shared/store/auth-store';
   import PublicRoute from "./shared/components/PublicRoute";
   import PrivateRoute from "./shared/components/PrivateRoute";
-import Sidebar from "./shared/components/Sidebar";
+  import Sidebar from "./shared/components/Sidebar";
+  import HistoricoCompra from "./features/supplies/HistoricoCompra";
+  
 
   function App() {
     const [showSplash, setShowSplash] = useState(true);
@@ -124,6 +126,14 @@ import Sidebar from "./shared/components/Sidebar";
                 element={
                   <PrivateRoute>
                     <Fornecedor />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/historicoCompra"
+                element={
+                  <PrivateRoute>
+                    <HistoricoCompra />
                   </PrivateRoute>
                 }
               />
