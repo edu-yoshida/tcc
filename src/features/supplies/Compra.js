@@ -56,7 +56,7 @@ const CadastroCompra = () => {
       produtos: formState.produtos.map((p) => ({
         produtoId: Number(p.id),
         quantidade: Number(p.quantidadeEstoque),
-        preco: Math.round(Number(p.valor)),
+        preco: (Number(p.valor)),
       })),
     };
 
@@ -119,7 +119,7 @@ const CadastroCompra = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-1">Observação</label>
+                  <label className="block text-sm font-medium mb-1 ">Observação</label>
                   <textarea
                     name="observacao"
                     value={formState.observacao}
