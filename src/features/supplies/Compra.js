@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import Sidebar from "../../shared/components/Sidebar";
 import LogoGastroFlow from "../../assets/LogoGastroFlow.png";
 import { FaPlusCircle, FaTrashAlt } from "react-icons/fa";
-import StockModal from "../../shared/components/StockModal";
 import FornecedorDropdown from "../../shared/components/FornecedorDropdown.js";
 import api from "../../shared/utils/api";
+import ComprasModal from "../../shared/components/ComprasModal.js";
 
 const CadastroCompra = () => {
   const [formState, setFormState] = useState({
@@ -56,7 +56,7 @@ const CadastroCompra = () => {
       produtos: formState.produtos.map((p) => ({
         produtoId: Number(p.id),
         quantidade: Number(p.quantidadeEstoque),
-        preco: Math.round(Number(p.valor)),
+        preco: Number(p.valor)
       })),
     };
 
@@ -188,7 +188,7 @@ const CadastroCompra = () => {
         </div>
       </div>
 
-      <StockModal
+      <ComprasModal
         isOpen={isModalOpen}
         onClose={closeProductModal}
         onAddIngredients={handleAddProducts}

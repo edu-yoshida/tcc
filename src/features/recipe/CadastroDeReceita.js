@@ -87,16 +87,26 @@ const CadastroDeReceita = () => {
   const closeAdjustStockModal = () => setIsModalOpen(false);
 
   // ✅ Recebe ingredientes do modal e adapta para o novo formato
+  // 🚨 AJUSTE PRINCIPAL: Usar 'quantidadeEstoque' que vem do modal e mapear para 'quantidade'
   const handleAddIngredients = (ingredientesSelecionados) => {
     const novos = ingredientesSelecionados.map((ing) => ({
       produtoId: ing.id,
-      quantidade: ing.quantidadeAdicionar,
+      // 🎯 CORREÇÃO: Usar 'quantidadeEstoque' que reflete o valor editado no modal.
+      quantidade: ing.quantidadeEstoque, 
       nomeProduto: ing.nomeProduto,
       categoria: ing.categoria,
     }));
 
+    // 💡 Lógica de prevenção de duplicatas (opcional, mas recomendado)
+    const produtosExistentesIds = new Set(formState.produtos.map(p => p.produtoId));
+    const novosIngredientesFiltrados = novos.filter(ing => !produtosExistentesIds.has(ing.produtoId));
+
     setFormState((prev) => ({
       ...prev,
+      // Se a prevenção de duplicatas for aplicada, use: 
+      // produtos: [...prev.produtos, ...novosIngredientesFiltrados],
+      
+      // Caso contrário, usa-se a versão mais simples:
       produtos: [...prev.produtos, ...novos],
     }));
 
@@ -174,7 +184,8 @@ const CadastroDeReceita = () => {
                             <span className="font-bold text-gray-800 text-lg">{item.nomeProduto}</span>
                             <div className="text-xs text-gray-500">
                               Categoria: <span className="text-gray-700">{item.categoria}</span> | 
-                              Quantidade: <span className="text-gray-700">{item.quantidade}</span>
+                              {/* O valor de 'item.quantidade' agora virá do input editável do modal */}
+                              Quantidade: <span className="text-gray-700 font-semibold">{item.quantidade}</span>
                             </div>
                           </div>
                           <button

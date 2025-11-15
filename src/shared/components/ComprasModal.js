@@ -1,24 +1,21 @@
 import React, { useEffect, useState } from "react";
 import ProdutoService from "../../features/home/service/ProdutoService";
 
-const StockModal = ({ isOpen, onClose, onAddIngredients }) => {
+const ComprasModal = ({ isOpen, onClose, onAddIngredients }) => {
   const [produtos, setProdutos] = useState([]);
-  const [loading, setLoading] = useState(false);
-  
-  // Estado para rastrear a quantidade de cada produto (Chave: ID do produto, Valor: Quantidade)
+  const [valores, setValores] = useState({});
   const [quantidades, setQuantidades] = useState({});
+  const [loading, setLoading] = useState(false);
 
   // 🔍 Filtros
   const [filtroNome, setFiltroNome] = useState("");
   const [filtroCategoria, setFiltroCategoria] = useState("");
 
-  // 🔄 Buscar produtos e inicializar quantidades ao abrir o modal
+  // 🔄 Buscar produtos ao abrir o modal
   useEffect(() => {
     if (isOpen) {
       fetchProdutos();
     }
-    // 🚨 LIMPEZA: Limpa as quantidades ao fechar ou reabrir
-    return () => setQuantidades({});
   }, [isOpen]);
 
   const fetchProdutos = async () => {
@@ -26,15 +23,6 @@ const StockModal = ({ isOpen, onClose, onAddIngredients }) => {
     try {
       const response = await ProdutoService.GetProducts();
       setProdutos(response);
-      
-      // 🎯 CORREÇÃO: Mapeia as quantidades, mantendo 0 como padrão
-      const initialQuantities = response.reduce((acc, produto) => {
-        // Se já houver uma quantidade (em caso de refetch), mantém. Caso contrário, inicia em 0.
-        acc[produto.id] = quantidades[produto.id] !== undefined ? quantidades[produto.id] : 0; 
-        return acc;
-      }, {});
-      setQuantidades(initialQuantities);
-      
     } catch (error) {
       console.error("Erro ao buscar produtos:", error);
     } finally {
@@ -42,67 +30,63 @@ const StockModal = ({ isOpen, onClose, onAddIngredients }) => {
     }
   };
 
-  if (!isOpen) return null;
-
-  // FILTRO sem includes e sem alterar design
-  const produtosFiltrados = produtos.filter((p) => {
-    const nomeMatch =
-      filtroNome.trim() === "" || (p.nome ?? "") === filtroNome.trim();
-
-    const categoriaMatch =
-      filtroCategoria === "" ||
-      (p.categoria && p.categoria === filtroCategoria);
-
-    return nomeMatch && categoriaMatch;
-  });
-
-  // Função para lidar com a mudança na quantidade de um produto
-  const handleQuantidadeChange = (produtoId, value) => {
-    // CORREÇÃO: Garante que o valor é um número válido e não negativo
-    let novaQuantidade = parseInt(value, 10);
-    
-    // Se não for um número válido (ex: campo vazio), define como 0
-    if (isNaN(novaQuantidade)) {
-      novaQuantidade = 0;
-    }
-    
-    // Garante que o valor mínimo é 0
-    novaQuantidade = Math.max(0, novaQuantidade);
-    
-    setQuantidades((prevQuantidades) => ({
-      ...prevQuantidades,
-      [produtoId]: novaQuantidade,
+  // Atualiza quantidade digitada
+  const handleQuantidadeChange = (id, value) => {
+    setQuantidades((prev) => ({
+      ...prev,
+      [id]: value,
     }));
   };
 
-  // 🔥 Adicionar os produtos selecionados com suas respectivas quantidades
+  // Atualiza valor digitado 💰
+  const handleValorChange = (id, value) => {
+    setValores((prev) => ({
+      ...prev,
+      [id]: value,
+    }));
+  };
+
+  // Adiciona produtos selecionados
   const handleAdd = () => {
-    // Filtra apenas os produtos que estão sendo exibidos (filtrados) E com quantidade > 0
-    const selecionados = produtosFiltrados
-      .map((produto) => {
-        const quantidade = quantidades[produto.id] || 0; 
-        
-        // Só adiciona se a quantidade for maior que 0
-        if (quantidade > 0) {
-          return {
-            id: produto.id,
-            nomeProduto: produto.nome,
-            categoria: produto.categoria || "Sem categoria",
-            quantidadeEstoque: quantidade, // Usa a quantidade dinâmica
-          };
-        }
-        return null; // Descarta produtos com quantidade 0
-      })
-      .filter(Boolean); // Remove os nulls
+    const selecionados = produtos
+      .filter(
+        (produto) =>
+          quantidades[produto.id] &&
+          Number(quantidades[produto.id]) > 0 &&
+          valores[produto.id] &&
+          Number(valores[produto.id]) > 0
+      )
+      .map((produto) => ({
+        id: produto.id,
+        nomeProduto: produto.nome,
+        categoria: produto.categoria || "Sem categoria",
+        quantidadeEstoque: Number(quantidades[produto.id]),
+        valor: Number(valores[produto.id]),
+      }));
 
     if (selecionados.length === 0) {
-      alert("⚠️ Nenhum produto selecionado ou com quantidade válida para adicionar.");
+      alert("⚠️ Informe quantidade e valor para pelo menos um produto.");
       return;
     }
 
     onAddIngredients(selecionados);
+    setQuantidades({});
+    setValores({});
     onClose();
   };
+
+  if (!isOpen) return null;
+
+  // 🔎 Aplicar filtros de nome e categoria
+  const produtosFiltrados = produtos.filter((p) => {
+    const nomeMatch = (p.nome?.toLowerCase() ?? '')
+      .includes(filtroNome.toLowerCase().trim());
+    const categoriaMatch =
+      filtroCategoria === "" ||
+      (p.categoria &&
+         p.categoria.toLowerCase() === filtroCategoria.toLowerCase());
+    return nomeMatch && categoriaMatch;
+  });
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
@@ -143,7 +127,8 @@ const StockModal = ({ isOpen, onClose, onAddIngredients }) => {
                 <tr>
                   <th className="text-left px-4 py-2">Produto</th>
                   <th className="text-left px-4 py-2">Categoria</th>
-                  <th className="text-center px-4 py-2 w-32">Quantidade</th>
+                  <th className="text-center px-4 py-2">Quantidade</th>
+                  <th className="text-center px-4 py-2">Valor (R$)</th>
                 </tr>
               </thead>
               <tbody>
@@ -155,16 +140,28 @@ const StockModal = ({ isOpen, onClose, onAddIngredients }) => {
                         {produto.categoria || "Sem categoria"}
                       </td>
                       <td className="px-4 py-2 text-center">
-                        {/* 🎯 CORREÇÃO: Garante que o valor do input é lido do estado, usando 0 como fallback*/}
                         <input
                           type="number"
                           min="0"
-                          // 🚨 CORREÇÃO PRINCIPAL: Usa o estado de quantidades. O `|| 0` evita um estado de 'undefined' no input.
-                          value={quantidades[produto.id] || 0}
+                          value={quantidades[produto.id] || ""}
                           onChange={(e) =>
                             handleQuantidadeChange(produto.id, e.target.value)
                           }
-                          className="border border-gray-300 rounded-md p-1 text-center text-sm w-20 mx-auto focus:ring-orange-500 focus:border-orange-500"
+                          placeholder="0"
+                          className="w-20 border rounded-md p-1 text-center"
+                        />
+                      </td>
+                      <td className="px-4 py-2 text-center">
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={valores[produto.id] || ""}
+                          onChange={(e) =>
+                            handleValorChange(produto.id, e.target.value)
+                          }
+                          placeholder="0.00"
+                          className="w-24 border rounded-md p-1 text-center"
                         />
                       </td>
                     </tr>
@@ -172,7 +169,7 @@ const StockModal = ({ isOpen, onClose, onAddIngredients }) => {
                 ) : (
                   <tr>
                     <td
-                      colSpan="3"
+                      colSpan="4"
                       className="text-center text-gray-500 py-4 italic"
                     >
                       Nenhum produto encontrado.
@@ -192,7 +189,6 @@ const StockModal = ({ isOpen, onClose, onAddIngredients }) => {
           >
             Cancelar
           </button>
-
           <button
             onClick={handleAdd}
             className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition"
@@ -205,4 +201,4 @@ const StockModal = ({ isOpen, onClose, onAddIngredients }) => {
   );
 };
 
-export default StockModal;
+export default ComprasModal;
