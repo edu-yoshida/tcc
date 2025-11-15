@@ -1,8 +1,8 @@
 import api from "../../../shared/utils/api";
 
-async function RegisterProduct({ nome, unidadeMedida, categoria }) {
+async function RegisterProduct({ nome, unidadeMedida, categoria, quantidadeEstoque }) {
     try {
-        const response = await api.post("v1/api/produtos", { nome, unidadeMedida, categoria });
+        const response = await api.post("v1/api/produtos", { nome, unidadeMedida, categoria, quantidadeEstoque });
         return response.data;
     } catch (error) {
         throw error;

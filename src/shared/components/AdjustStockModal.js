@@ -81,22 +81,22 @@ const AdjustStockModal = ({ isOpen, onClose, onUpdateStockBatch }) => {
 
   const productsWithStock = Array.isArray(products)
     ? products.map((p) => ({
-        ...p,
-        addValue: stockChanges[p.id] ?? "",
-      }))
+      ...p,
+      addValue: stockChanges[p.id] ?? "",
+    }))
     : [];
 
   // 🔎 Filtro aplicado
   const produtosFiltrados = productsWithStock.filter((p) => {
-    const nomeMatch = p.nome
-      .toLowerCase()
-      .includes(filtroNome.toLowerCase().trim());
+    const nomeMatch = p.nome === filtroNome.trim();
     const categoriaMatch =
       filtroCategoria === "" ||
-      (p.categoria &&
-        p.categoria.toLowerCase() === filtroCategoria.toLowerCase());
+      (p.categoria && p.categoria === filtroCategoria);
+
     return nomeMatch && categoriaMatch;
   });
+
+
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -213,11 +213,10 @@ const AdjustStockModal = ({ isOpen, onClose, onUpdateStockBatch }) => {
               <button
                 type="submit"
                 disabled={Object.keys(stockChanges).length === 0}
-                className={`py-2 px-4 rounded-md text-sm font-medium text-white transition flex items-center ${
-                  Object.keys(stockChanges).length === 0
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-orange-600 hover:bg-orange-700"
-                }`}
+                className={`py-2 px-4 rounded-md text-sm font-medium text-white transition flex items-center ${Object.keys(stockChanges).length === 0
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-orange-600 hover:bg-orange-700"
+                  }`}
               >
                 <FaSave className="mr-2" /> Salvar Alterações (
                 {Object.keys(stockChanges).length})

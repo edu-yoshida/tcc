@@ -7,7 +7,7 @@ const CadastroDeProdutos = () => {
   const [formState, setFormState] = useState({
     nome: '',
     unidadeMedida: '',
-    categoria: ''
+    categoria: '',
   });
 
   const [error, setError] = React.useState("");
@@ -33,7 +33,8 @@ const CadastroDeProdutos = () => {
       const data = await ProdutoService.RegisterProduct({
         nome: formState.nome,
         unidadeMedida: formState.unidadeMedida,
-        categoria: formState.categoria
+        categoria: formState.categoria,
+        quantidadeEstoque: 0
       });
     } catch (err) {
       console.error(err);
@@ -123,7 +124,7 @@ const CadastroDeProdutos = () => {
                     >
                       <option value="">Selecione a categoria</option>
                       <option value="estocaveis">estocaveis</option>
-                      <option value="hortifruiti">hortifruiti</option>
+                      <option value="hortifruti">hortifruiti</option>
                       <option value="acougues">acougues</option>
                       <option value="laticinios">laticinios</option>
                     </select>
