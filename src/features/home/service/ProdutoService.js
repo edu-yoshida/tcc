@@ -27,7 +27,7 @@ async function UpdateProductStock({ id, quantidadeEstoque }) {
 
 async function GetProducts() {
     try {
-        const response = await api.get("/v1/api/produtos/produtos");
+        const response = await api.get("/v1/api/produtos/filters/all?pageSize=5&pageNumber=1");
         return response.data || [];
     } catch (error) {
         throw error;

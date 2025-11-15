@@ -9,6 +9,16 @@ async function RegisterAula({nome, descricao, data, instrutor, materia, modulo, 
     }
 }
 
+async function GetAula() {
+    try {
+        const response = await api.get("/v1/api/aulas");
+        return response.data || [];
+    } catch (error) {
+        throw error;
+    }
+}
+
 export default {
-    RegisterAula
+    RegisterAula,
+    GetAula
 }
