@@ -7,6 +7,8 @@ import LogoGastroFlow from "../../assets/LogoGastroFlow.png"
 
 const VerificarProdutos = () => {
     const [produtos, setProdutos] = useState([]);
+    const [total, setTotal] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
     const [produtosFiltrados, setProdutosFiltrados] = useState([]);
     const [filtroNome, setFiltroNome] = useState("");
     const [filtroCategoria, setFiltroCategoria] = useState(null);
@@ -33,8 +35,10 @@ const VerificarProdutos = () => {
         setLoadingProdutos(true);
         try {
             const data = await ProdutoService.GetProducts();
-            setProdutos(data);
-            setProdutosFiltrados(data); // Inicializa a lista filtrada com todos os produtos
+            setProdutos(data.produtos);
+            setProdutosFiltrados(data.produtos); // Inicializa a lista filtrada com todos os produtos
+            setTotal(data.total);
+            setTotalPages(data.totalPages);
         } catch (err) {
             console.error("Erro ao carregar produtos:", err);
         } finally {
@@ -78,7 +82,7 @@ const VerificarProdutos = () => {
 
             <div className="flex-1 min-w-0 flex flex-col">
                 <div className="h-28 shrink-0 bg-gradient-to-r from-orange-400 via-yellow-500 to-orange-600 flex flex-col items-center justify-center text-white rounded-b-3xl overflow-hidden">
-                    <h2 className="text-lg font-bold">Verificar Estoque</h2>
+                    <h2 className="text-lg font-bold">Listar Estoque</h2>
                 </div>
 
                 <div className="flex-1 flex p-6 bg-orange-100 items-center justify-center overflow-auto">
