@@ -3,61 +3,76 @@ import LogoGastroFlow from "../../../assets/LogoGastroFlow.png";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import LoginService from "../service/LoginService";
-import { jwtDecode } from 'jwt-decode';
-import useAuthStore from '../../../shared/store/auth-store';
+import { jwtDecode } from "jwt-decode";
+import useAuthStore from "../../../shared/store/auth-store";
 
 export default function Login() {
+  const navigate = useNavigate();
 
   const { setAuthData, fcmToken } = useAuthStore();
-
-  const navigate = useNavigate();
 
   const [form, setForm] = React.useState({ email: "", password: "" });
   const [error, setError] = React.useState("");
   const [showPassword, setShowPassword] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
 
+  // Atualiza formulário
   const handleForm = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
     setError("");
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  // Enviar formulário
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    if (!form.email || !form.password) {
-      setError("Preencha ambos os campos abaixo");
-      return;
-    }
+  if (!form.email || !form.password) {
+    setError("Preencha ambos os campos abaixo");
+    return;
+  }
 
-    try {
-      const data = await LoginService.loginUser({
-        email: form.email,
-        password: form.password
-      });
+  try {
+    setLoading(true);
 
+    // Login
+    const data = await LoginService.loginUser({
+      email: form.email,
+      password: form.password,
+    });
 
-      const { token } = data;
-      const receivedTokenFromBackend = data.token;
+    const receivedToken = data.token;
 
-      localStorage.setItem("token", token);
+    // Salva token + limpa user (para forçar useMe() a buscar)
+    setAuthData(receivedToken, null);
 
-      const decodedUser = jwtDecode(receivedTokenFromBackend);
-      setAuthData(receivedTokenFromBackend, decodedUser);
-      console.log('Dados do usuário decodificados e armazenados:', decodedUser);
-
-      await LoginService.sendToken({ fcmToken })
-      navigate("/produtos");
-    } catch (err) {
-      console.error(err);
-      if (err.response && err.response.status === 401) {
-        setError("Email ou senha incorretos!");
-      } else if (err.response && err.response.status === 403) {
-        setError("Acesso negado! Verifique suas credenciais.");
-      } else {
-        setError("Erro ao tentar fazer login.");
+    // Envia FCM token (se existir)
+    if (fcmToken) {
+      try {
+        await LoginService.sendToken({ fcmToken });
+      } catch (fcErr) {
+        console.warn("Falha ao enviar FCM token:", fcErr);
       }
     }
-  };
+
+    // 👉 Redireciona para rota privada
+    navigate("/produtos", { replace: true });
+
+  } catch (err) {
+    console.error(err);
+
+    if (err.response?.status === 401) {
+      setError("Email ou senha incorretos!");
+    } else if (err.response?.status === 403) {
+      setError("Acesso negado! Verifique suas credenciais.");
+    } else {
+      setError("Erro ao tentar fazer login.");
+    }
+
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div
@@ -65,7 +80,8 @@ export default function Login() {
                  bg-gradient-to-br from-orange-500/80 via-yellow-500/70 to-orange-600/80"
     >
       <div className="w-full max-w-md p-8 rounded-2xl bg-white shadow-2xl">
-
+        
+        {/* Logo */}
         <section className="flex justify-center items-center mb-4">
           <img
             src={LogoGastroFlow}
@@ -74,10 +90,12 @@ export default function Login() {
           />
         </section>
 
+        {/* Erro */}
         {error && (
           <p className="text-red-600 text-center font-semibold">{error}</p>
         )}
 
+        {/* Formulário */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           <input
             id="email"
@@ -110,23 +128,30 @@ export default function Login() {
             </button>
           </div>
 
+          {/* Botão */}
           <button
             type="submit"
+            disabled={loading}
             className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 rounded-xl
-                       shadow-lg transition transform hover:-translate-y-0.5 active:translate-y-0"
+                       shadow-lg transition transform hover:-translate-y-0.5 active:translate-y-0
+                       disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Entrar
+            {loading ? "Entrando..." : "Entrar"}
           </button>
         </form>
+
+        {/* Separador */}
         <div className="flex items-center gap-2 my-6">
           <hr className="flex-1 border-gray-300" />
           <span className="text-gray-500 text-sm">ou</span>
           <hr className="flex-1 border-gray-300" />
         </div>
+
+        {/* Botão cadastro */}
         <button
           onClick={() => navigate("/CadastroUsuario")}
           className="block mx-auto mt-6 text-orange-600 font-bold cursor-pointer 
-                               hover:text-orange-500 hover:underline"
+                     hover:text-orange-500 hover:underline"
         >
           Ainda não possui uma conta? Cadastre-se!
         </button>

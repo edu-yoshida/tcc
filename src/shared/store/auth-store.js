@@ -1,12 +1,23 @@
 import { create } from "zustand";
 
-const useAuthStore = create(set => ({
-  user: null, // As informações decodificadas do token
-  token: null, // O token JWT completo
+const useAuthStore = create((set) => ({
+  user: null,
+  token: null,
   fcmToken: null,
-  setAuthData: (token, user) => set({ token, user }),
-  logout: () => set({ token: null, user: null }),
-  setFcmToken: (fcmToken) => set({fcmToken})
-}))
+
+  setAuthData: (token, user = null) => {
+    localStorage.setItem("token", token);
+    set({ token, user });
+  },
+
+  setUser: (user) => set({ user }),
+
+  logout: () => {
+    localStorage.removeItem("token");
+    set({ token: null, user: null });
+  },
+
+  setFcmToken: (fcmToken) => set({ fcmToken }),
+}));
 
 export default useAuthStore;

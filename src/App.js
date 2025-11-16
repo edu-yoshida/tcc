@@ -14,7 +14,6 @@ import Fornecedor from "./features/supplies/Fornecedor";
 import HistoricoCompra from "./features/supplies/HistoricoCompra";
 import PrivateLayout from "./shared/components/PrivateLayout";
 
-import { AuthProvider } from "./shared/context/AuthContext";
 import { Toaster } from "react-hot-toast";
 import { requestForToken, onMessageListener } from "./firebase";
 import useAuthStore from "./shared/store/auth-store";
@@ -22,21 +21,26 @@ import useAuthStore from "./shared/store/auth-store";
 import PublicRoute from "./shared/components/PublicRoute";
 import PrivateRoute from "./shared/components/PrivateRoute";
 
+// 🔥 NOVO: Importa o modal global
+import StatusModal from "./shared/components/StatusModal";
+
 function App() {
   const [showSplash, setShowSplash] = useState(true);
   const { setFcmToken } = useAuthStore();
 
+  // 🔥 Pegando FCM token
   useEffect(() => {
     requestForToken().then(setFcmToken);
   }, []);
 
+  // 🔥 Listener de notificações
   useEffect(() => {
-    const unsub = onMessageListener().then(() => {});
-    return () => {};
+    onMessageListener().then(() => {});
   }, []);
 
   return (
-    <AuthProvider>
+    <>
+      {/* TELA DE SPLASH */}
       {showSplash ? (
         <SplashScreen onFinish={() => setShowSplash(false)} />
       ) : (
@@ -55,7 +59,7 @@ function App() {
               }
             />
 
-            {/* TODAS AS ROTAS PRIVADAS AQUI */}
+            {/* ROTAS PRIVADAS */}
             <Route
               element={
                 <PrivateRoute>
@@ -76,8 +80,12 @@ function App() {
         </Router>
       )}
 
+      {/* TOASTS */}
       <Toaster />
-    </AuthProvider>
+
+      {/* 🔥 MODAL GLOBAL — AGORA FUNCIONA EM QUALQUER PÁGINA */}
+      <StatusModal />
+    </>
   );
 }
 
