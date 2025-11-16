@@ -1,8 +1,8 @@
 import api from "../../../shared/utils/api";
 
-async function RegisterProduct({ nome, unidadeMedida, categoria }) {
+async function RegisterProduct({ nome, unidadeMedida, categoria, quantidadeEstoque }) {
     try {
-        const response = await api.post("v1/api/produtos", { nome, unidadeMedida, categoria });
+        const response = await api.post("v1/api/produtos", { nome, unidadeMedida, categoria, quantidadeEstoque });
         return response.data;
     } catch (error) {
         throw error;
@@ -27,7 +27,7 @@ async function UpdateProductStock({ id, quantidadeEstoque }) {
 
 async function GetProducts() {
     try {
-        const response = await api.get("/v1/api/produtos/produtos");
+        const response = await api.get("/v1/api/produtos/filters/all?pageSize=5&pageNumber=1");
         return response.data || [];
     } catch (error) {
         throw error;

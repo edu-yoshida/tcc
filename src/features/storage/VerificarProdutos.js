@@ -1,165 +1,205 @@
 import React, { useState, useEffect } from "react";
-import { FaSearch } from "react-icons/fa";
 import Sidebar from "../../shared/components/Sidebar";
+import CompraService from "./Service/CompraService";
 import ProdutoService from "../home/service/ProdutoService";
-import EstoqueModal from "./EstoqueModal";
-import LogoGastroFlow from "../../assets/LogoGastroFlow.png"
+import FornecedorService from "./Service/FornecedorService";
 
-const VerificarProdutos = () => {
-  const [produtos, setProdutos] = useState([]);
-  const [produtosFiltrados, setProdutosFiltrados] = useState([]);
-  const [filtroNome, setFiltroNome] = useState("");
-  const [filtroCategoria, setFiltroCategoria] = useState(null);
-  const [loadingProdutos, setLoadingProdutos] = useState(true);
+import CompraDetalhesModal from "../../shared/components/CompraDetalhesModal.js";
 
+const HistoricoCompras = () => {
+  const [entradas, setEntradas] = useState([]);
+  const [filtradas, setFiltradas] = useState([]);
+  const [produtosMap, setProdutosMap] = useState({});
+  const [fornecedoresMap, setFornecedoresMap] = useState({});
+  const [dataInicio, setDataInicio] = useState("");
+  const [dataFim, setDataFim] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  // MODAL
-  const [produtoSelecionado, setProdutoSelecionado] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  // Modal
+  const [modalOpen, setModalOpen] = useState(false);
+  const [compraSelecionada, setCompraSelecionada] = useState(null);
 
-  const handleAbrirModal = (produto) => {
-    setProdutoSelecionado(produto);
-    setIsModalOpen(true);
-  };
-
-  const handleFecharModal = () => {
-    setIsModalOpen(false);
-    setProdutoSelecionado(null);
-  };
-
-  // CARREGAR PRODUTOS
-  const fetchProdutos = async () => {
-    setLoadingProdutos(true);
+  // Carregar produtos
+  const carregarProdutos = async () => {
     try {
-      const data = await ProdutoService.GetProducts();
-      setProdutos(data);
-      setProdutosFiltrados(data);
+      const dados = await ProdutoService.GetProducts();
+      const mapa = {};
+      dados.forEach(p => (mapa[p.id] = p.nome));
+      setProdutosMap(mapa);
     } catch (err) {
       console.error("Erro ao carregar produtos:", err);
+    }
+  };
+
+  // Carregar fornecedores
+  const carregarFornecedores = async () => {
+    try {
+      const response = await FornecedorService.GetFornecedores();
+      const fornecedores = response.content ?? response;
+      const map = {};
+      fornecedores.forEach(f => (map[f.id] = f.nomeFantasia));
+      setFornecedoresMap(map);
+    } catch (err) {
+      console.error("Erro ao carregar fornecedores:", err);
+    }
+  };
+
+  // Buscar entradas
+  const fetchEntradas = async () => {
+    setLoading(true);
+    try {
+      const data = await CompraService.getAllEntradas();
+      const ordenado = [...data].sort(
+        (a, b) => isoToNumber(b.dataEntrada) - isoToNumber(a.dataEntrada)
+      );
+      setEntradas(ordenado);
+      setFiltradas(ordenado);
+    } catch (err) {
+      console.error("Erro ao carregar histórico:", err);
     } finally {
-      setLoadingProdutos(false);
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchProdutos();
+    carregarProdutos();
+    carregarFornecedores();
+    fetchEntradas();
   }, []);
 
-  // FILTRO
-  useEffect(() => {
-    let listaFiltrada = produtos.filter((produto) =>
-      produto.nome && filtroNome ? produto.nome.includes(filtroNome) : true
-    );
+  // Utilidades de data
+  const isoDatePart = (isoString) => {
+    if (!isoString) return "";
+    if (/^\d{4}-\d{2}-\d{2}$/.test(isoString)) return isoString;
 
-    if (filtroCategoria) {
-      listaFiltrada = listaFiltrada.filter(
-        (produto) =>
-          produto.categoria && produto.categoria === filtroCategoria
-      );
+    const part = isoString.split("T")[0].split(" ")[0];
+    return part.match(/^(\d{4}-\d{2}-\d{2})/)?.[1] ?? "";
+  };
+
+  const isoToNumber = (isoString) =>
+    parseInt(isoDatePart(isoString).replace(/-/g, ""), 10) || 0;
+
+  const formatFromISO = (isoString) => {
+    const [y, m, d] = isoDatePart(isoString).split("-");
+    return d && m && y ? `${d}/${m}/${y}` : "";
+  };
+
+  // Filtrar ao mudar datas
+  useEffect(() => {
+    if (!dataInicio && !dataFim) {
+      setFiltradas(entradas);
+      return;
     }
 
-    setProdutosFiltrados(listaFiltrada);
-  }, [filtroNome, filtroCategoria, produtos]);
+    const inicioNum = dataInicio ? parseInt(dataInicio.replace(/-/g, ""), 10) : null;
+    const fimNum = dataFim ? parseInt(dataFim.replace(/-/g, ""), 10) : null;
 
+    const lista = entradas.filter((e) => {
+      const entradaNum = isoToNumber(e.dataEntrada);
+      if (inicioNum && entradaNum < inicioNum) return false;
+      if (fimNum && entradaNum > fimNum) return false;
+      return true;
+    });
+
+    setFiltradas(lista);
+  }, [dataInicio, dataFim, entradas]);
+
+  // Abrir modal com dados formatados
+  const abrirModal = (entrada) => {
+    setCompraSelecionada({
+      ...entrada,
+      dataFormatada: formatFromISO(entrada.dataEntrada),
+      fornecedorNome: fornecedoresMap[entrada.fornecedorId] ?? `Fornecedor #${entrada.fornecedorId}`
+    });
+
+    setModalOpen(true);
+  };
 
   return (
     <div className="flex w-screen h-screen overflow-hidden bg-orange-100 text-gray-800 font-sans">
-      
+      <aside className="w-64 shrink-0"><Sidebar /></aside>
 
-      <div className="flex-1 min-w-0 flex flex-col ml-64">
-        <div className="h-28 shrink-0 bg-gradient-to-r from-orange-400 via-yellow-500 to-orange-600 flex flex-col items-center justify-center text-white rounded-b-3xl overflow-hidden">
-          <h2 className="text-lg font-bold">Verificar Estoque</h2>
+      <div className="flex-1 min-w-0 flex flex-col">
+        <div className="h-28 bg-gradient-to-r from-orange-400 via-yellow-500 to-orange-600 flex flex-col items-center justify-center text-white rounded-b-3xl">
+          <h2 className="text-lg font-bold">Histórico de Compras</h2>
         </div>
 
-        <div className="flex-1 flex p-6 bg-orange-100 items-center justify-center overflow-auto">
+        <div className="flex-1 flex p-6 items-center justify-center overflow-auto">
           <div className="w-1/2 bg-white rounded-lg shadow-md p-6 flex flex-col space-y-4">
-            <h3 className="text-xl font-semibold text-gray-800">
-              Produtos Cadastrados
-            </h3>
 
-            <div className="flex space-x-3 items-center">
-              <div className="relative flex-1">
+            <h3 className="text-xl font-semibold">Compras Registradas</h3>
+
+            <div className="flex space-x-6 items-end mt-2">
+              <div className="flex items-center space-x-2">
+                <span className="text-sm font-medium text-gray-700">De</span>
                 <input
-                  type="text"
-                  placeholder="Filtrar por nome do produto..."
-                  value={filtroNome}
-                  onChange={(e) => setFiltroNome(e.target.value)}
-                  className="block w-full rounded-md border border-gray-300 focus:border-orange-500 p-2 pl-10 text-sm"
+                  type="date"
+                  value={dataInicio}
+                  onChange={(e) => setDataInicio(e.target.value)}
+                  className="block rounded-md border border-gray-300 p-2 text-sm"
                 />
-                <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               </div>
 
-              <select
-                value={filtroCategoria || ""}
-                onChange={(e) => setFiltroCategoria(e.target.value || null)}
-                className="py-2 px-4 rounded-md text-sm font-medium bg-orange-500 text-white hover:bg-orange-600 border-none cursor-pointer"
-              >
-                <option value="">Todas as categorias</option>
-                <option value="estocaveis">Estocáveis</option>
-                <option value="hortifruti">Hortifruti</option>
-                <option value="acougues">Açougues</option>
-                <option value="laticinios">Laticínios</option>
-              </select>
+              <div className="flex items-center space-x-2">
+                <span className="text-sm font-medium text-gray-700">Até</span>
+                <input
+                  type="date"
+                  value={dataFim}
+                  onChange={(e) => setDataFim(e.target.value)}
+                  className="block rounded-md border border-gray-300 p-2 text-sm"
+                />
+              </div>
             </div>
 
-            <div className="overflow-x-auto border border-gray-200 rounded-md flex-1">
-              {loadingProdutos ? (
-                <div className="p-4 text-center text-gray-500">
-                  Carregando produtos...
-                </div>
-              ) : produtosFiltrados.length > 0 ? (
+            {/* TABELA */}
+            <div className="overflow-y-auto overflow-x-auto border border-gray-200 rounded-md max-h-[400px]">
+
+              {loading ? (
+                <div className="p-4 text-center text-gray-500">Carregando histórico...</div>
+              ) : filtradas.length > 0 ? (
                 <table className="w-full text-sm border">
-                  <thead className="bg-gray-100">
+                  <thead className="bg-orange-200">
                     <tr>
-                      <th className="px-4 py-2 text-left">Produto</th>
-                      <th className="px-4 py-2 text-left">Categoria</th>
-                      <th className="px-4 py-2 text-left">Estoque</th>
+                      <th className="px-4 py-2 text-left">Data</th>
+                      <th className="px-4 py-2 text-left">Fornecedor</th>
+                      <th className="px-4 py-2 text-left">Observação</th>
                     </tr>
                   </thead>
+
                   <tbody>
-                    {produtos.map((produto) => (
+                    {filtradas.map((entrada) => (
                       <tr
-                        key={produto.id}
-                        className="hover:bg-[#fff5e6] transition duration-150 cursor-pointer"
-                        onClick={() => handleAbrirModal(produto)}
+                        key={entrada.id}
+                        className="hover:bg-orange-100 cursor-pointer transition"
+                        onClick={() => abrirModal(entrada)}
                       >
-                        <td className="px-4 py-2">{produto.nome}</td>
-                        <td className="px-4 py-2">{produto.categoria || "Sem categoria"}</td>
-                        <td className="px-4 py-2">{produto.quantidadeEstoque ?? "0"}</td>
+                        <td className="px-4 py-2">{formatFromISO(entrada.dataEntrada)}</td>
+                        <td className="px-4 py-2">
+                          {fornecedoresMap[entrada.fornecedorId] ??
+                            `Fornecedor #${entrada.fornecedorId}`}
+                        </td>
+                        <td className="px-4 py-2">{entrada.observacao || "—"}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               ) : (
-                <div className="p-4 text-center text-gray-500">
-                  {produtos.length === 0
-                    ? "Nenhum produto cadastrado."
-                    : "Nenhum produto encontrado com os filtros aplicados."}
-                </div>
+                <div className="p-4 text-center text-gray-500">Nenhuma compra encontrada.</div>
               )}
             </div>
           </div>
-
-        </div>
-        <div className="hidden md:flex items-center justify-center rounded-2xl p-6">
-          <img
-            src={LogoGastroFlow}
-            alt="Logo"
-            className="hidden md:block absolute right-10 bottom-10 w-40 opacity-80"
-          />
         </div>
       </div>
 
-      {produtoSelecionado && (
-        <EstoqueModal
-          isOpen={isModalOpen}
-          onClose={handleFecharModal}
-          produtoSelecionado={produtoSelecionado}
-        />
-
-      )}
+      {/* MODAL DE DETALHES */}
+      <CompraDetalhesModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        compra={compraSelecionada}
+        produtosMap={produtosMap}
+      />
     </div>
   );
 };
 
-export default VerificarProdutos;
+export default HistoricoCompras;

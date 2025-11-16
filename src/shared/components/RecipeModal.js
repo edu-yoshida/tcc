@@ -5,7 +5,9 @@ const RecipeModal = ({ isOpen, onClose, onAddReceitas }) => {
   const [receitas, setReceitas] = useState([]);
   const [filtroNome, setFiltroNome] = useState("");
   const [loading, setLoading] = useState(false);
-  const [selecionadas, setSelecionadas] = useState({}); 
+
+  // Armazena quantidades: { id: quantidade }
+  const [selecionadas, setSelecionadas] = useState({});
 
   useEffect(() => {
     if (isOpen) {
@@ -27,43 +29,42 @@ const RecipeModal = ({ isOpen, onClose, onAddReceitas }) => {
 
   if (!isOpen) return null;
 
+  // Filtro sem includes e sem lowercase
   const receitasFiltradas = receitas.filter((r) => {
-  if (!r.nome) return false;    // evita erro se nome for null
-  if (!filtroNome) return true; // se filtro vazio, retorna tudo
-  return r.nome.includes(filtroNome.trim());
-});
+    if (!r.nome) return false; 
+    if (!filtroNome.trim()) return true;
+    return r.nome === filtroNome.trim();
+  });
 
-
-  // Atualiza a quantidade de uma receita
-  const handleQuantidadeChange = (id, novaQtd) => {
+  // Atualiza quantidade digitada
+  const handleQtd = (id, valor) => {
     setSelecionadas((prev) => ({
       ...prev,
-      [id]: Math.max(0, parseInt(novaQtd) || 0), // não deixa quantidade negativa
+      [id]: valor.trim() === "" ? "" : valor // sem Number(), sem parseInt
     }));
   };
 
-  // Envia todas as receitas selecionadas com suas quantidades
   const handleConfirmar = () => {
-    const selecionadasArray = [];
+    const resultado = Object.entries(selecionadas)
+      .filter(([_, qtd]) => qtd && qtd !== "" && qtd > 0)
+      .map(([id, qtd]) => {
+        const receita = receitas.find((r) => r.id === parseInt(id));
 
-    // Para cada receita selecionada, adiciona o mesmo objeto 'qtd' vezes
-    Object.entries(selecionadas).forEach(([id, qtd]) => {
-      const receita = receitas.find((r) => r.id === parseInt(id));
-      if (receita && qtd > 0) {
-        for (let i = 0; i < qtd; i++) {
-          selecionadasArray.push({ ...receita });
-        }
-      }
-    });
+        return {
+          id: receita.id,
+          nome: receita.nome,
+          quantidade: qtd
+        };
+      });
 
-    if (selecionadasArray.length === 0) {
-      alert("Selecione pelo menos uma receita!");
+    if (resultado.length === 0) {
+      alert("Selecione quantidade para pelo menos uma receita!");
       return;
     }
 
-    onAddReceitas(selecionadasArray);
+    onAddReceitas(resultado);
 
-    setSelecionadas(0);
+    setSelecionadas({});
     onClose();
   };
 
@@ -106,9 +107,7 @@ const RecipeModal = ({ isOpen, onClose, onAddReceitas }) => {
                           type="number"
                           min="0"
                           value={selecionadas[receita.id] || ""}
-                          onChange={(e) =>
-                            handleQuantidadeChange(receita.id, e.target.value)
-                          }
+                          onChange={(e) => handleQtd(receita.id, e.target.value)}
                           className="w-20 text-center border border-gray-300 rounded-md p-1 focus:ring-orange-500 focus:border-orange-500"
                         />
                       </td>
