@@ -13,6 +13,8 @@ import SplashScreen from "./features/home/components/SplashScreen";
 import Fornecedor from "./features/supplies/Fornecedor";
 import HistoricoCompra from "./features/supplies/HistoricoCompra";
 import PrivateLayout from "./shared/components/PrivateLayout";
+import MostrarAulas from "./features/recipe/MostrarAulas"
+import MostrarReceitas from "./features/recipe/MostrarReceitas"
 
 import { Toaster } from "react-hot-toast";
 import { requestForToken, onMessageListener } from "./firebase";
@@ -72,9 +74,12 @@ function App() {
               <Route path="/estoque" element={<VerificarProdutos />} />
               <Route path="/receitas" element={<CadastroDeReceita />} />
               <Route path="/receitasClass" element={<AulasReceitas />} />
+              <Route path="/MostrarReceitas" element={<MostrarReceitas />} />
+              <Route path="/MostrarAulas" element={<MostrarAulas />} />
               <Route path="/compra" element={<CadastroCompra />} />
               <Route path="/fornecedor" element={<Fornecedor />} />
               <Route path="/historicoCompra" element={<HistoricoCompra />} />
+              
             </Route>
           </Routes>
         </Router>
