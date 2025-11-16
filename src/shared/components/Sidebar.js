@@ -2,8 +2,6 @@ import React from "react";
 import {
   FaUser,
   FaBox,
-  FaCogs,
-  FaCheckCircle,
   FaConciergeBell,
   FaDollyFlatbed,
 } from "react-icons/fa";
@@ -96,8 +94,9 @@ const Sidebar = () => {
               icon={FaDollyFlatbed}
               title="Gestão de Suprimentos"
               links={[
-                { label: "Fornecedores", path: "/fornecedor" },
-                { label: "Compras", path: "/compra" },
+                { label: "Fornecedor", path: "/fornecedor" },
+                { label: "Compra", path: "/compra" },
+                { label: "Histórico de Compra", path: "/historicoCompra" },
               ]}
             />
           </div>

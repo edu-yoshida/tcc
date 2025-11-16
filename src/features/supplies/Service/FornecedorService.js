@@ -15,10 +15,12 @@ async function RegisterFornecedor({ razaoSocial, nomeFantasia, telefone, email, 
     }
 }
 
-async function GetFornecedores() {
+async function GetFornecedores(pageNumber = 0, pageSize = 10) {
     try {
-        const response = await api.get("/v1/api/suppliers");
-        return response.data || [];
+        const response = await api.get("/v1/api/suppliers", {
+            params: { pageNumber, pageSize },
+        });
+        return response.data.content  || [];
     } catch (error) {
         throw error;
     }

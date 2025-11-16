@@ -1,47 +1,51 @@
-import React, { useState } from 'react';
-import LogoGastroFlow from '../../assets/LogoGastroFlow.png';
-import Sidebar from '../../shared/components/Sidebar';
-import { FaPlusCircle, FaTrashAlt } from 'react-icons/fa';
-import StockModal from '../../shared/components/StockModal';
-import ReceitaService from '../home/service/ReceitaService';
+import React, { useState } from "react";
+import Sidebar from "../../shared/components/Sidebar";
+import ReceitaService from "../home/service/ReceitaService";
+import { FaPlusCircle, FaTrashAlt } from "react-icons/fa";
+import IngredientsModal from "../../shared/components/IngredientsModal";
+
+// === MODAL GLOBAL ===
+import { useStatusModalStore } from "../../shared/store/modal-store";
+import StatusModal from "../../shared/components/StatusModal";
 
 const CadastroDeReceita = () => {
   const [formState, setFormState] = useState({
-    nome: '',
-    descricao: '',
-    produtos: [], // [{ produtoId, quantidade, nomeProduto, categoria }]
-    tempoPreparo: '',
-    rendimento: '',
-    tipo: '',
-    professorReceita: '',
+    nome: "",
+    descricao: "",
+    produtos: [], // { produtoId, quantidade, nomeProduto, categoria }
+    tempoPreparo: "",
+    rendimento: "",
+    tipo: "",
+    professorReceita: "",
   });
 
   const [errors, setErrors] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [loadingProdutos, setLoadingProdutos] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
+
+  // === GLOBAL MODAL STORE ===
+  const { showLoading, showSuccess, showError } = useStatusModalStore();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormState((prev) => ({ ...prev, [name]: value }));
-    setErrors((prev) => ({ ...prev, [name]: '' }));
+    setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formState.nome.trim()) newErrors.nome = 'O nome da receita é obrigatório.';
-    if (!formState.descricao.trim()) newErrors.descricao = 'A descrição é obrigatória.';
-    if (formState.produtos.length === 0) newErrors.produtos = 'Adicione pelo menos um ingrediente.';
-    if (!formState.tempoPreparo.trim()) newErrors.tempoPreparo = 'Informe o tempo de preparo.';
-    if (!formState.rendimento.trim()) newErrors.rendimento = 'Informe o rendimento.';
-    if (!formState.tipo.trim()) newErrors.tipo = 'Informe o tipo de receita.';
-    if (!formState.professorReceita.trim()) newErrors.professorReceita = 'Informe o professor ou autor.';
+    if (!formState.nome.trim()) newErrors.nome = "O nome da receita é obrigatório.";
+    if (!formState.descricao.trim()) newErrors.descricao = "A descrição é obrigatória.";
+    if (formState.produtos.length === 0) newErrors.produtos = "Adicione pelo menos um ingrediente.";
+    if (!formState.tempoPreparo.trim()) newErrors.tempoPreparo = "Informe o tempo de preparo.";
+    if (!formState.rendimento.trim()) newErrors.rendimento = "Informe o rendimento.";
+    if (!formState.tipo.trim()) newErrors.tipo = "Informe o tipo.";
+    if (!formState.professorReceita.trim()) newErrors.professorReceita = "Informe o autor.";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  // ✅ Envio ao backend com produtoId + quantidade
+  // === SUBMIT ===
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
@@ -60,85 +64,74 @@ const CadastroDeReceita = () => {
     };
 
     try {
-      setSubmitting(true);
+      showLoading("Salvando receita...");
+
       await ReceitaService.RegisterRecipe(receitaData);
-      alert('✅ Receita cadastrada com sucesso!');
+
+      showSuccess("Receita cadastrada com sucesso!");
 
       setFormState({
-        nome: '',
-        descricao: '',
+        nome: "",
+        descricao: "",
         produtos: [],
-        tempoPreparo: '',
-        rendimento: '',
-        tipo: '',
-        professorReceita: '',
+        tempoPreparo: "",
+        rendimento: "",
+        tipo: "",
+        professorReceita: "",
       });
-      setErrors({});
-    } catch (error) {
-      console.error('❌ Erro ao cadastrar receita:', error);
-      alert('Ocorreu um erro ao cadastrar a receita. Verifique o console.');
-    } finally {
-      setSubmitting(false);
+    } catch (err) {
+      console.error(err);
+
+      if (err.response && err.response.status === 403) {
+        showError("Acesso negado! Verifique suas credenciais.");
+      } else {
+        showError("Erro ao cadastrar receita!");
+      }
     }
   };
 
-  // Modal
   const openAdjustStockModal = () => setIsModalOpen(true);
   const closeAdjustStockModal = () => setIsModalOpen(false);
 
-  // ✅ Recebe ingredientes do modal e adapta para o novo formato
-  // 🚨 AJUSTE PRINCIPAL: Usar 'quantidadeEstoque' que vem do modal e mapear para 'quantidade'
   const handleAddIngredients = (ingredientesSelecionados) => {
     const novos = ingredientesSelecionados.map((ing) => ({
       produtoId: ing.id,
-      // 🎯 CORREÇÃO: Usar 'quantidadeEstoque' que reflete o valor editado no modal.
-      quantidade: ing.quantidadeEstoque, 
+      quantidade: ing.quantidadeAdicionar,
       nomeProduto: ing.nomeProduto,
       categoria: ing.categoria,
     }));
 
-    // 💡 Lógica de prevenção de duplicatas (opcional, mas recomendado)
-    const produtosExistentesIds = new Set(formState.produtos.map(p => p.produtoId));
-    const novosIngredientesFiltrados = novos.filter(ing => !produtosExistentesIds.has(ing.produtoId));
-
     setFormState((prev) => ({
       ...prev,
-      // Se a prevenção de duplicatas for aplicada, use: 
-      // produtos: [...prev.produtos, ...novosIngredientesFiltrados],
-      
-      // Caso contrário, usa-se a versão mais simples:
       produtos: [...prev.produtos, ...novos],
     }));
 
     setIsModalOpen(false);
-    setErrors((prev) => ({ ...prev, produtos: '' }));
+    setErrors((prev) => ({ ...prev, produtos: "" }));
   };
 
   const handleRemoveIngredient = (indexToRemove) => {
     setFormState((prev) => ({
       ...prev,
-      produtos: prev.produtos.filter((_, index) => index !== indexToRemove),
+      produtos: prev.produtos.filter((_, i) => i !== indexToRemove),
     }));
   };
 
   return (
     <div className="flex w-screen h-screen overflow-hidden bg-orange-100 text-gray-800 font-sans">
-      {/* SIDEBAR */}
-      <aside className="w-64 shrink-0">
-        <div className="h-full overflow-y-auto">
-          <Sidebar />
-        </div>
-      </aside>
 
-      {/* CONTEÚDO */}
-      <div className="flex-1 min-w-0 flex flex-col">
-        <div className="h-28 bg-gradient-to-r from-orange-400 via-yellow-500 to-orange-600 flex flex-col items-center justify-center text-white rounded-b-3xl shadow-lg">
+      <Sidebar />
+
+      <div className="flex-1 min-w-0 flex flex-col ml-64">
+        <div className="h-28 bg-gradient-to-r from-orange-400 via-yellow-500 to-orange-600 
+                        flex flex-col items-center justify-center text-white rounded-b-3xl shadow-lg">
           <h2 className="text-2xl font-extrabold tracking-tight">Cadastro de Receitas</h2>
           <p className="text-sm opacity-90">GastroFlow</p>
         </div>
 
-        <div className="flex-1 flex items-start justify-center md:p-6 overflow-y-auto relative">
-          <div className="w-full max-w-3xl bg-white rounded-xl shadow-2xl p-6 transition-all duration-300">
+        <div className="flex-1 flex items-start justify-center md:p-6 overflow-y-auto">
+          <div className="w-full max-w-3xl bg-white rounded-xl shadow-2xl p-6">
+
             <form onSubmit={handleSubmit} className="space-y-5">
 
               {/* Nome */}
@@ -150,51 +143,46 @@ const CadastroDeReceita = () => {
                   value={formState.nome}
                   onChange={handleChange}
                   placeholder="Ex: Pão de Queijo"
-                  className={`block w-full rounded-lg border p-3 text-sm transition ${
-                    errors.nome ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full rounded-lg border p-3 text-sm ${errors.nome ? "border-red-500" : "border-gray-300"}`}
                 />
-                {errors.nome && <p className="text-red-500 text-xs mt-1">{errors.nome}</p>}
+
+                {errors.nome && <p className="text-red-500 text-xs">{errors.nome}</p>}
               </div>
 
               {/* Ingredientes */}
-              <div className="flex flex-col space-y-3">
+              <div>
                 <label className="text-xl text-gray-800">Ingredientes</label>
 
                 <button
                   type="button"
                   onClick={openAdjustStockModal}
-                  className="py-2 px-4 rounded-md text-sm font-medium text-white bg-green-500 hover:bg-green-600 transition flex items-center justify-center"
+                  className="flex items-center py-2 px-4 mt-2 rounded-md text-white bg-green-500 hover:bg-green-600"
                 >
-                  <FaPlusCircle className="mr-1" size={16} /> Adicionar Ingredientes
+                  <FaPlusCircle className="mr-2" /> Adicionar Ingredientes
                 </button>
 
-                {errors.produtos && (
-                  <p className="text-red-500 text-xs mt-1">{errors.produtos}</p>
-                )}
+                {errors.produtos && <p className="text-red-500 text-xs">{errors.produtos}</p>}
 
                 {formState.produtos.length > 0 && (
-                  <div className="mt-4 border border-gray-200 rounded-xl bg-gradient-to-br from-white to-gray-50 p-4 shadow-sm">
-                    <h3 className="text-lg font-semibold mb-3 text-gray-800">Ingredientes Selecionados</h3>
+                  <div className="mt-4 border rounded-xl p-4 bg-gray-50">
+                    <h3 className="text-lg font-semibold mb-2">Selecionados</h3>
 
-                    <ul className="divide-y divide-gray-200">
+                    <ul className="divide-y">
                       {formState.produtos.map((item, index) => (
-                        <li key={index} className="flex justify-between items-center py-2 px-2 hover:bg-orange-50 rounded-lg transition">
-                          <div className="flex flex-col">
-                            <span className="font-bold text-gray-800 text-lg">{item.nomeProduto}</span>
-                            <div className="text-xs text-gray-500">
-                              Categoria: <span className="text-gray-700">{item.categoria}</span> | 
-                              {/* O valor de 'item.quantidade' agora virá do input editável do modal */}
-                              Quantidade: <span className="text-gray-700 font-semibold">{item.quantidade}</span>
-                            </div>
+                        <li key={index} className="flex justify-between py-2">
+                          <div>
+                            <span className="font-bold">{item.nomeProduto}</span>
+                            <p className="text-xs text-gray-600">
+                              Categoria: {item.categoria} | Quantidade: {item.quantidade}
+                            </p>
                           </div>
+
                           <button
                             type="button"
                             onClick={() => handleRemoveIngredient(index)}
-                            className="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-100 transition"
-                            title="Remover ingrediente"
+                            className="text-red-600 hover:text-red-800"
                           >
-                            <FaTrashAlt size={14} />
+                            <FaTrashAlt />
                           </button>
                         </li>
                       ))}
@@ -205,124 +193,109 @@ const CadastroDeReceita = () => {
 
               {/* Descrição */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Descrição</label>
+                <label className="block text-sm font-semibold mb-1">Descrição</label>
                 <textarea
                   name="descricao"
                   value={formState.descricao}
                   onChange={handleChange}
-                  placeholder="Adicione uma breve descrição"
-                  className={`block w-full rounded-lg border p-3 text-sm h-24 transition ${
-                    errors.descricao ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  placeholder="Adicione uma breve descrição..."
+                  className={`w-full h-24 border p-3 rounded-lg ${errors.descricao ? "border-red-500" : "border-gray-300"}`}
                 />
-                {errors.descricao && <p className="text-red-500 text-xs mt-1">{errors.descricao}</p>}
+
+                {errors.descricao && <p className="text-red-500 text-xs">{errors.descricao}</p>}
               </div>
 
               {/* Tempo e Rendimento */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">
-                    Tempo de Preparo (min)
-                  </label>
+                  <label className="block text-sm font-semibold">Tempo de Preparo (min)</label>
                   <input
                     type="text"
                     name="tempoPreparo"
                     value={formState.tempoPreparo}
                     onChange={handleChange}
                     placeholder="Ex: 45"
-                    className={`block w-full rounded-lg border p-3 text-sm transition ${
-                      errors.tempoPreparo ? 'border-red-500' : 'border-gray-300'
-                    }`}
+                    className={`w-full rounded-lg border p-3 ${errors.tempoPreparo ? "border-red-500" : "border-gray-300"}`}
                   />
-                  {errors.tempoPreparo && <p className="text-red-500 text-xs mt-1">{errors.tempoPreparo}</p>}
+
+                  {errors.tempoPreparo && <p className="text-red-500 text-xs">{errors.tempoPreparo}</p>}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">
-                    Rendimento (porções)
-                  </label>
+                  <label className="block text-sm font-semibold">Rendimento (porções)</label>
                   <input
                     type="text"
                     name="rendimento"
                     value={formState.rendimento}
                     onChange={handleChange}
-                    placeholder="Ex: 8"
-                    className={`block w-full rounded-lg border p-3 text-sm transition ${
-                      errors.rendimento ? 'border-red-500' : 'border-gray-300'
-                    }`}
+                    placeholder="Ex: 8 porções"
+                    className={`w-full rounded-lg border p-3 ${errors.rendimento ? "border-red-500" : "border-gray-300"}`}
                   />
-                  {errors.rendimento && <p className="text-red-500 text-xs mt-1">{errors.rendimento}</p>}
+
+                  {errors.rendimento && <p className="text-red-500 text-xs">{errors.rendimento}</p>}
                 </div>
               </div>
 
               {/* Tipo */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Tipo de Receita</label>
+                <label className="block text-sm font-semibold">Tipo da Receita</label>
                 <input
                   type="text"
                   name="tipo"
                   value={formState.tipo}
                   onChange={handleChange}
-                  placeholder="Ex: Sobremesa, Prato Principal..."
-                  className={`block w-full rounded-lg border p-3 text-sm transition ${
-                    errors.tipo ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  placeholder="Ex: Sobremesa, Prato Principal, Salgado..."
+                  className={`w-full rounded-lg border p-3 ${errors.tipo ? "border-red-500" : "border-gray-300"}`}
                 />
-                {errors.tipo && <p className="text-red-500 text-xs mt-1">{errors.tipo}</p>}
+
+                {errors.tipo && <p className="text-red-500 text-xs">{errors.tipo}</p>}
               </div>
 
               {/* Professor */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Professor/Autor</label>
+                <label className="block text-sm font-semibold">Professor/Autor</label>
                 <input
                   type="text"
                   name="professorReceita"
                   value={formState.professorReceita}
                   onChange={handleChange}
-                  placeholder="Nome do responsável pela receita"
-                  className={`block w-full rounded-lg border p-3 text-sm transition ${
-                    errors.professorReceita ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  placeholder="Nome do professor / autor da receita"
+                  className={`w-full rounded-lg border p-3 ${errors.professorReceita ? "border-red-500" : "border-gray-300"}`}
                 />
-                {errors.professorReceita && (
-                  <p className="text-red-500 text-xs mt-1">{errors.professorReceita}</p>
-                )}
+
+                {errors.professorReceita && <p className="text-red-500 text-xs">{errors.professorReceita}</p>}
               </div>
 
               {/* Botões */}
-              <div className="flex flex-col space-y-3 pt-4">
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="py-3 px-4 rounded-lg shadow-md text-base font-bold text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-4 focus:ring-orange-300 transition w-full"
-                >
-                  {submitting ? 'Salvando...' : 'Cadastrar Receita'}
+              <div className="flex flex-col space-y-3 pt-2">
+                <button className="py-3 px-4 rounded-lg text-white bg-orange-600 hover:bg-orange-700 transition">
+                  Cadastrar Receita
                 </button>
+
                 <button
                   type="button"
-                  onClick={() => console.log('Cancelar')}
-                  className="py-3 px-4 rounded-lg shadow-sm text-base font-medium bg-orange-300 hover:bg-orange-400 text-gray-800 transition w-full"
+                  onClick={() => console.log("Cancelar")}
+                  className="py-3 px-4 rounded-lg bg-orange-300 text-gray-800"
                 >
                   Cancelar
                 </button>
               </div>
+
             </form>
           </div>
-
-          <img
-            src={LogoGastroFlow}
-            alt="Logo"
-            className="hidden md:block absolute right-10 bottom-10 w-40 opacity-80"
-          />
         </div>
       </div>
 
-      <StockModal
+      {/* === STATUS MODAL GLOBAL === */}
+      <StatusModal />
+
+      {/* === MODAL DE INGREDIENTES === */}
+      <IngredientsModal
         isOpen={isModalOpen}
         onClose={closeAdjustStockModal}
         onAddIngredients={handleAddIngredients}
-        loadingProdutos={loadingProdutos}
       />
+
     </div>
   );
 };

@@ -3,6 +3,9 @@ import Sidebar from "../../shared/components/Sidebar";
 import LogoGastroFlow from "../../assets/LogoGastroFlow.png";
 import FornecedorService from "./Service/FornecedorService";
 
+import { useStatusModalStore } from "../../shared/store/modal-store";
+import StatusModal from "../../shared/components/StatusModal";
+
 const Fornecedor = () => {
   const [formState, setFormState] = useState({
     razaoSocial: "",
@@ -12,15 +15,13 @@ const Fornecedor = () => {
     email: "",
   });
 
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const { showLoading, showSuccess, showError } = useStatusModalStore();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // Máscara simples para telefone
     if (name === "telefone") {
-      let v = value.replace(/\D/g, ""); // Remove tudo que não for número
+      let v = value.replace(/\D/g, "");
       v = v.replace(/^(\d{2})(\d)/g, "($1) $2");
       v = v.replace(/(\d{5})(\d{4})$/, "$1-$2");
       setFormState((prev) => ({ ...prev, telefone: v }));
@@ -33,14 +34,19 @@ const Fornecedor = () => {
     e.preventDefault();
 
     const { razaoSocial, telefone, endereco, email } = formState;
+
     if (!razaoSocial || !telefone || !endereco || !email) {
-      setError("Preencha todos os campos obrigatórios!");
+      showError("Preencha todos os campos obrigatórios!");
       return;
     }
 
     try {
+      showLoading("Cadastrando fornecedor...");
+
       await FornecedorService.RegisterFornecedor(formState);
-      setSuccess(`Fornecedor "${razaoSocial}" cadastrado com sucesso!`);
+
+      showSuccess(`Fornecedor "${razaoSocial}" cadastrado com sucesso!`);
+
       setFormState({
         razaoSocial: "",
         nomeFantasia: "",
@@ -50,64 +56,39 @@ const Fornecedor = () => {
       });
     } catch (err) {
       console.error(err);
-      if (err.response?.status === 403) {
-        setError("Acesso negado! Verifique suas credenciais.");
-      } else if (err.response?.status === 400) {
-        setError("Dados inválidos! Verifique as informações preenchidas.");
-      } else {
-        setError("Erro ao cadastrar fornecedor. Tente novamente.");
-      }
-    } finally {
-      setTimeout(() => {
-        setError("");
-        setSuccess("");
-      }, 4000);
-    }
-  };
 
-  const handleCancel = () => {
-    setFormState({
-      razaoSocial: "",
-      nomeFantasia: "",
-      telefone: "",
-      endereco: "",
-      email: "",
-    });
+      if (err.response?.status === 403) {
+        showError("Acesso negado! Verifique suas credenciais.");
+      } else if (err.response?.status === 400) {
+        showError("Dados inválidos! Verifique as informações preenchidas.");
+      } else {
+        showError("Erro ao cadastrar fornecedor. Tente novamente.");
+      }
+    }
   };
 
   return (
     <div className="flex w-screen h-screen overflow-hidden bg-[#ffffff] text-gray-800 font-sans">
-      {/* Sidebar */}
-      <aside className="w-64 shrink-0">
-        <div className="h-full overflow-y-auto">
-          <Sidebar />
-        </div>
-      </aside>
 
-      {/* Direita */}
-      <div className="flex-1 min-w-0 flex flex-col overflow-hidden bg-orange-100">
+      {/* LADO DIREITO */}
+      <div className="flex-1 min-w-0 flex flex-col overflow-hidden bg-orange-100 ml-64">
         {/* Topbar */}
-        <div className="h-28 shrink-0 bg-gradient-to-r from-orange-400 via-yellow-500 to-orange-600 flex flex-col items-center justify-center text-white rounded-b-3xl overflow-hidden">
+        <div className="h-28 shrink-0 bg-gradient-to-r from-orange-400 via-yellow-500 to-orange-600 flex flex-col items-center justify-center text-white rounded-b-3xl">
           <h2 className="text-2xl font-bold">Cadastrar Fornecedor</h2>
         </div>
 
         {/* Conteúdo */}
         <div className="flex-1 min-h-0 flex items-center justify-center p-4 md:p-6 bg-orange-100 relative">
           <div className="w-full max-w-6xl mx-auto flex flex-col md:flex-row gap-8">
+
             {/* Formulário */}
-            <div className="w-full md:w-[520px] flex-shrink-0 bg-white rounded-2xl p-8 shadow-lg flex flex-col">
+            <div className="w-full md:w-[520px] bg-white rounded-2xl p-8 shadow-lg flex flex-col">
               <h3 className="text-xl font-semibold text-gray-800 mb-6">
                 Cadastro de Fornecedor
               </h3>
 
-              {error && (
-                <p className="text-red-600 text-center font-semibold">{error}</p>
-              )}
-              {success && (
-                <p className="text-green-600 text-center font-semibold">{success}</p>
-              )}
-
               <form onSubmit={handleSubmit} className="space-y-5 w-full">
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Razão Social
@@ -118,7 +99,7 @@ const Fornecedor = () => {
                     value={formState.razaoSocial}
                     onChange={handleChange}
                     placeholder="Ex: Itaú Unibanco Banco Múltiplo S.A."
-                    className="block w-full rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-orange-400 focus:border-orange-400 p-2 text-sm"
+                    className="block w-full rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-orange-400 p-2 text-sm"
                   />
                 </div>
 
@@ -132,7 +113,7 @@ const Fornecedor = () => {
                     value={formState.nomeFantasia}
                     onChange={handleChange}
                     placeholder="Ex: Itaú"
-                    className="block w-full rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-orange-400 focus:border-orange-400 p-2 text-sm"
+                    className="block w-full rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-orange-400 p-2 text-sm"
                   />
                 </div>
 
@@ -147,7 +128,7 @@ const Fornecedor = () => {
                     value={formState.telefone}
                     onChange={handleChange}
                     placeholder="(11) 98765-4321"
-                    className="block w-full rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-orange-400 focus:border-orange-400 p-2 text-sm"
+                    className="block w-full rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-orange-400 p-2 text-sm"
                   />
                 </div>
 
@@ -161,7 +142,7 @@ const Fornecedor = () => {
                     value={formState.endereco}
                     onChange={handleChange}
                     placeholder="Rua das Flores, 123"
-                    className="block w-full rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-orange-400 focus:border-orange-400 p-2 text-sm"
+                    className="block w-full rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-orange-400 p-2 text-sm"
                   />
                 </div>
 
@@ -175,11 +156,10 @@ const Fornecedor = () => {
                     value={formState.email}
                     onChange={handleChange}
                     placeholder="fornecedor@gmail.com"
-                    className="block w-full rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-orange-400 focus:border-orange-400 p-2 text-sm"
+                    className="block w-full rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-orange-400 p-2 text-sm"
                   />
                 </div>
 
-                {/* Botões */}
                 <div className="flex flex-col space-y-3 pt-2">
                   <button
                     type="submit"
@@ -188,6 +168,7 @@ const Fornecedor = () => {
                     Cadastrar Fornecedor
                   </button>
                 </div>
+
               </form>
             </div>
 
@@ -199,9 +180,13 @@ const Fornecedor = () => {
                 className="flex-1 w-full h-[21rem] object-contain"
               />
             </div>
+
           </div>
         </div>
       </div>
+
+      {/* 🔥 MODAL DE STATUS */}
+      <StatusModal />
     </div>
   );
 };
