@@ -20,7 +20,7 @@ async function GetFornecedores(pageNumber = 0, pageSize = 10) {
         const response = await api.get("/v1/api/suppliers", {
             params: { pageNumber, pageSize },
         });
-        return response.data || [];
+        return response.data.content  || [];
     } catch (error) {
         throw error;
     }

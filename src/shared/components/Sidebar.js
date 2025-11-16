@@ -2,8 +2,6 @@ import React from "react";
 import {
   FaUser,
   FaBox,
-  FaCogs,
-  FaCheckCircle,
   FaConciergeBell,
   FaDollyFlatbed,
 } from "react-icons/fa";

@@ -88,14 +88,9 @@ const AulasReceitas = () => {
   return (
     <div className="flex w-screen h-screen overflow-hidden bg-gray-50 text-gray-800 font-sans">
       {/* Sidebar */}
-      <aside className="w-64 shrink-0">
-        <div className="h-full overflow-y-auto">
-          <Sidebar />
-        </div>
-      </aside>
 
       {/* Conteúdo principal */}
-      <div className="flex-1 flex flex-col bg-orange-100">
+      <div className="flex-1 flex flex-col bg-orange-100 ml-64">
         {/* Topbar */}
         <div className="h-28 shrink-0 bg-gradient-to-r from-orange-500 via-yellow-400 to-orange-600 flex flex-col items-center justify-center text-white rounded-b-3xl shadow-xl px-4">
           <h2 className="text-2xl font-extrabold tracking-tight">

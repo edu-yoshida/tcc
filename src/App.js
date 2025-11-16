@@ -1,149 +1,84 @@
+import { useState, useEffect } from "react";
+import { HashRouter as Router, Routes, Route } from "react-router-dom";
+import "./App.css";
 
-  import { useState } from "react";
-  import { HashRouter as Router, Routes, Route } from "react-router-dom";
-  import './App.css';
+import CadastroUsuario from "./features/home/components/CadastroUsuario";
+import CadastroDeProdutos from "./features/home/components/CadastroDeProdutos";
+import CadastroDeReceita from "./features/recipe/CadastroDeReceita";
+import AulasReceitas from "./features/recipe/AulasReceitas";
+import CadastroCompra from "./features/supplies/Compra";
+import VerificarProdutos from "./features/storage/VerificarProdutos";
+import Login from "./features/home/components/Login";
+import SplashScreen from "./features/home/components/SplashScreen";
+import Fornecedor from "./features/supplies/Fornecedor";
+import HistoricoCompra from "./features/supplies/HistoricoCompra";
+import PrivateLayout from "./shared/components/PrivateLayout";
 
-  import CadastroUsuario from "./features/home/components/CadastroUsuario";
-  import CadastroDeProdutos from "./features/home/components/CadastroDeProdutos";
-  import CadastroDeReceita from "./features/recipe/CadastroDeReceita";
-  import AulasReceitas from "./features/recipe/AulasReceitas";
-  import CadastroCompra from "./features/supplies/Compra";
-  import VerificarProdutos from "./features/storage/VerificarProdutos";
-  import Login from './features/home/components/Login';
-  import SplashScreen from './features/home/components/SplashScreen';
-  import Fornecedor from "./features/supplies/Fornecedor";
-  import { AuthProvider } from "./shared/context/AuthContext";
-  import React from 'react';
-  import { Toaster } from 'react-hot-toast';
-  import { requestForToken, onMessageListener } from './firebase';
-  import useAuthStore from './shared/store/auth-store';
-  import PublicRoute from "./shared/components/PublicRoute";
-  import PrivateRoute from "./shared/components/PrivateRoute";
-  import Sidebar from "./shared/components/Sidebar";
-  import HistoricoCompra from "./features/supplies/HistoricoCompra";
-  
+import { AuthProvider } from "./shared/context/AuthContext";
+import { Toaster } from "react-hot-toast";
+import { requestForToken, onMessageListener } from "./firebase";
+import useAuthStore from "./shared/store/auth-store";
 
-  function App() {
-    const [showSplash, setShowSplash] = useState(true);
+import PublicRoute from "./shared/components/PublicRoute";
+import PrivateRoute from "./shared/components/PrivateRoute";
 
-    const [token, setToken] = React.useState(null);
-    const { setFcmToken } = useAuthStore()
+function App() {
+  const [showSplash, setShowSplash] = useState(true);
+  const { setFcmToken } = useAuthStore();
 
-    // 1. Obtém o Token na montagem do componente
-    React.useEffect(() => {
-      requestForToken()
-        .then((currentToken) => {
-          setToken(currentToken);
-          setFcmToken(currentToken)
-        })
-        .catch((err) => {
-          console.error("Erro ao solicitar token:", err);
-        });
-    }, []);
+  useEffect(() => {
+    requestForToken().then(setFcmToken);
+  }, []);
 
-    // 2. Configura o Listener para mensagens em Foreground
-    React.useEffect(() => {
-      // Registra o listener e obtém a função de limpeza (unsubscribe)
-      const unsubscribe = onMessageListener().then(() => {
-        // O then é chamado quando uma mensagem chega, mas o listener continua ativo
-      });
+  useEffect(() => {
+    const unsub = onMessageListener().then(() => {});
+    return () => {};
+  }, []);
 
-      // Retorna a função de limpeza para que o listener seja removido ao desmontar o componente
-      return () => {
-        // Se necessário, implemente o unsubscribe do listener aqui.
-        // Para onMessage(), o listener é geralmente ativo enquanto o app está montado.
-      };
-    }, []);
-
-    return (
+  return (
     <AuthProvider>
-      <div>
-        {showSplash ? (
-          <SplashScreen onFinish={() => setShowSplash(false)} />
-        ) : (
-          <Router>
-            <Routes>
-              <Route path="/" element={<Login />} />
+      {showSplash ? (
+        <SplashScreen onFinish={() => setShowSplash(false)} />
+      ) : (
+        <Router>
+          <Routes>
+            {/* LOGIN */}
+            <Route path="/" element={<Login />} />
 
-              <Route 
-                path="/cadastroUsuario" 
-                element={
-                  <PublicRoute>
-                    <CadastroUsuario />
-                  </PublicRoute>
-                }
-              />
-              <Route 
-                path="/usuariosAcessver" 
-                element={
-                  <PrivateRoute>
-                    <Sidebar />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/produtos"
-                element={
-                  <PrivateRoute>
-                    <CadastroDeProdutos />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/estoque"
-                element={
-                  <PrivateRoute>
-                    <VerificarProdutos />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/receitas"
-                element={
-                  <PrivateRoute>
-                    <CadastroDeReceita />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/receitasClass"
-                element={
-                  <PrivateRoute>
-                    <AulasReceitas />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/compra"
-                element={
-                  <PrivateRoute>
-                    <CadastroCompra />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/fornecedor"
-                element={
-                  <PrivateRoute>
-                    <Fornecedor />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/historicoCompra"
-                element={
-                  <PrivateRoute>
-                    <HistoricoCompra />
-                  </PrivateRoute>
-                }
-              />
-            </Routes>
-          </Router>
-        )}
-        <Toaster />
-      </div>
+            {/* ROTA PÚBLICA */}
+            <Route
+              path="/cadastroUsuario"
+              element={
+                <PublicRoute>
+                  <CadastroUsuario />
+                </PublicRoute>
+              }
+            />
+
+            {/* TODAS AS ROTAS PRIVADAS AQUI */}
+            <Route
+              element={
+                <PrivateRoute>
+                  <PrivateLayout />
+                </PrivateRoute>
+              }
+            >
+              <Route path="/usuariosAcessver" element={<></>} />
+              <Route path="/produtos" element={<CadastroDeProdutos />} />
+              <Route path="/estoque" element={<VerificarProdutos />} />
+              <Route path="/receitas" element={<CadastroDeReceita />} />
+              <Route path="/receitasClass" element={<AulasReceitas />} />
+              <Route path="/compra" element={<CadastroCompra />} />
+              <Route path="/fornecedor" element={<Fornecedor />} />
+              <Route path="/historicoCompra" element={<HistoricoCompra />} />
+            </Route>
+          </Routes>
+        </Router>
+      )}
+
+      <Toaster />
     </AuthProvider>
   );
-  }
+}
 
-  export default App;
+export default App;
