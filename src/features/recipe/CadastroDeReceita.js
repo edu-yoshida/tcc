@@ -268,7 +268,10 @@ const CadastroDeReceita = () => {
 
               {/* Botões */}
               <div className="flex flex-col space-y-3 pt-2">
-                <button className="py-3 px-4 rounded-lg text-white bg-orange-600 hover:bg-orange-700 transition">
+                <button 
+                  type="submit"
+                  className="py-3 px-4 rounded-lg text-white bg-orange-600 hover:bg-orange-700 transition"
+                >
                   Cadastrar Receita
                 </button>
 

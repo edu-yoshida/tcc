@@ -48,20 +48,24 @@ const StockModal = ({ isOpen, onClose, onAddIngredients }) => {
 
   // Adiciona produtos selecionados
   const handleAdd = () => {
-    const selecionados = produtos
-      .filter(
-        (produto) =>
-          quantidades[produto.id] &&
-          Number(quantidades[produto.id]) > 0 &&
-          valores[produto.id] &&
-          Number(valores[produto.id]) > 0
-      )
+    // Garante que produtos é sempre um array válido
+    const listaProdutos = Array.isArray(produtos)
+      ? produtos
+      : produtos?.produtos || [];
+
+    const selecionados = listaProdutos
+      .filter((produto) => {
+        const quantidade = Number(quantidades?.[produto?.id] ?? 0);
+        const valor = Number(valores?.[produto?.id] ?? 0);
+
+        return quantidade > 0 && valor > 0;
+      })
       .map((produto) => ({
         id: produto.id,
         nomeProduto: produto.nome,
         categoria: produto.categoria || "Sem categoria",
-        quantidadeEstoque: Number(quantidades[produto.id]),
-        valor: Number(valores[produto.id]),
+        quantidadeEstoque: Number(quantidades?.[produto.id] ?? 0),
+        valor: Number(valores?.[produto.id] ?? 0),
       }));
 
     if (selecionados.length === 0) {
@@ -78,14 +82,15 @@ const StockModal = ({ isOpen, onClose, onAddIngredients }) => {
   if (!isOpen) return null;
 
   // 🔎 Aplicar filtros de nome e categoria
-  const produtosFiltrados = produtos.filter((p) => {
-    const nomeMatch = p.nome
-      .toLowerCase()
-      .includes(filtroNome.toLowerCase().trim());
+  const listaProdutos = Array.isArray(produtos)
+    ? produtos
+    : produtos?.produtos || [];
+
+  const produtosFiltrados = listaProdutos.filter((p) => {
+    const nomeMatch = p.nome?.toLowerCase().includes(filtroNome.toLowerCase().trim());
     const categoriaMatch =
       filtroCategoria === "" ||
-      (p.categoria &&
-        p.categoria.toLowerCase() === filtroCategoria.toLowerCase());
+      (p.categoria && p.categoria.toLowerCase() === filtroCategoria.toLowerCase());
     return nomeMatch && categoriaMatch;
   });
 

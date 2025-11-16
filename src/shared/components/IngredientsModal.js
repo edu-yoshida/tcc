@@ -38,17 +38,19 @@ const IngredientsModal = ({ isOpen, onClose, onAddIngredients }) => {
   };
 
   const handleAdd = () => {
-    const selecionados = produtos
-      .filter(
-        (produto) =>
-          quantidades[produto.id] &&
-          Number(quantidades[produto.id]) > 0
-      )
+    // Garante que produtos é um array
+    const listaProdutos = Array.isArray(produtos) ? produtos : [];
+
+    const selecionados = listaProdutos
+      .filter((produto) => {
+        const qtd = Number(quantidades[produto.id]);
+        return !isNaN(qtd) && qtd > 0;
+      })
       .map((produto) => ({
         id: produto.id,
-        nomeProduto: produto.nome,
+        nomeProduto: produto.nome || "Sem nome",
         categoria: produto.categoria || "Sem categoria",
-        quantidadeAdicionar: Number(quantidades[produto.id]),
+        quantidadeAdicionar: Number(quantidades[produto.id])
       }));
 
     if (selecionados.length === 0) {
@@ -57,20 +59,31 @@ const IngredientsModal = ({ isOpen, onClose, onAddIngredients }) => {
     }
 
     onAddIngredients(selecionados);
+
     setQuantidades({});
     onClose();
   };
 
+
   if (!isOpen) return null;
 
   // Aplicar filtros
-  const produtosFiltrados = produtos.filter((p) => {
-    const nomeMatch = p.nome.toLowerCase().includes(filtroNome.toLowerCase().trim());
-    const categoriaMatch =
-      filtroCategoria === "" ||
-      (p.categoria && p.categoria.toLowerCase() === filtroCategoria.toLowerCase());
-    return nomeMatch && categoriaMatch;
-  });
+  const produtosFiltrados = Array.isArray(produtos)
+    ? produtos.filter((p) => {
+      const nome = p?.nome?.toLowerCase() || "";
+      const categoria = p?.categoria?.toLowerCase() || "";
+      const filtroNomeLower = filtroNome.toLowerCase().trim();
+      const filtroCategoriaLower = filtroCategoria?.toLowerCase() || "";
+
+      const nomeMatch =
+        !filtroNomeLower || nome.includes(filtroNomeLower);
+
+      const categoriaMatch =
+        !filtroCategoriaLower || categoria === filtroCategoriaLower;
+
+      return nomeMatch && categoriaMatch;
+    })
+    : [];
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">

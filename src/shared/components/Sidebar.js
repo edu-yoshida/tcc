@@ -66,7 +66,6 @@ const Sidebar = () => {
               title="Usuários"
               links={[
                 { label: "Cadastro de Usuários", path: "/CadastroUsuario" },
-                { label: "Verificação de Acessos", path: "/usuariosAcessver" },
               ]}
             />
 

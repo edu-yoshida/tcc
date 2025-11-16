@@ -4,8 +4,7 @@ import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import Sidebar from "../../shared/components/Sidebar";
 import LogoGastroFlow from "../../assets/LogoGastroFlow.png";
 import AulaService from "../home/service/AulaService";
-
-// import AulaModal from "./AulaModal";  // caso queira abrir detalhes
+import AulaModal from "../../shared/components/Aulamodal";
 
 const MostrarAulas = () => {
   const [aulas, setAulas] = useState([]);
@@ -196,8 +195,6 @@ const MostrarAulas = () => {
         </div>
       </div>
 
-      {/* MODAL OPCIONAL */}
-      {/* 
       {aulaSelecionada && (
         <AulaModal
           isOpen={isModalOpen}
@@ -205,7 +202,7 @@ const MostrarAulas = () => {
           aulaSelecionada={aulaSelecionada}
         />
       )}
-      */}
+     
     </div>
   );
 };
