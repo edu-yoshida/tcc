@@ -23,6 +23,8 @@ import PrivateRoute from "./shared/components/PrivateRoute";
 
 // 🔥 NOVO: Importa o modal global
 import StatusModal from "./shared/components/StatusModal";
+import MostrarAulas from "./features/recipe/MostrarAulas";
+import MostrarReceitas from "./features/recipe/MostrarReceitas";
 
 function App() {
   const [showSplash, setShowSplash] = useState(true);
@@ -75,6 +77,9 @@ function App() {
               <Route path="/compra" element={<CadastroCompra />} />
               <Route path="/fornecedor" element={<Fornecedor />} />
               <Route path="/historicoCompra" element={<HistoricoCompra />} />
+              <Route path="/MostrarAulas" element={<MostrarAulas />} />
+              <Route path="/MostrarReceitas" element={<MostrarReceitas />} />
+
             </Route>
           </Routes>
         </Router>
