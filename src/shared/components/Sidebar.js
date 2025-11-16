@@ -47,7 +47,7 @@ const Sidebar = () => {
   return (
     <>
       {isOpen && (
-        <div className="w-72 bg-[#ffffff] text-black-800 flex flex-col h-screen fixed top-0 left-0 z-40 font-semibold shadow-xl border-r border-orange-200">
+        <div className="w-65 bg-[#ffffff] text-black-800 flex flex-col h-screen fixed top-0 left-0 z-40 font-semibold shadow-xl border-r border-orange-200">
           {/* Logo */}
           <div className="flex justify-center items-center py-8 border-b border-orange-100">
             <NavLink to="/produtos">
@@ -60,31 +60,33 @@ const Sidebar = () => {
           </div>
 
           {/* Seções */}
-          <div className="flex-1 overflow-y-auto px-1 mt-4 space-y-3">
+          <div className="flex-1 overflow-y-auto mt-4 space-y-3">
             <SidebarSection
               icon={FaUser}
               title="Usuários"
               links={[
-                { label: "Cadastro de Usuário", path: "/CadastroUsuario" },
+                { label: "Cadastro de Usuários", path: "/CadastroUsuario" },
                 { label: "Verificação de Acessos", path: "/usuariosAcessver" },
               ]}
             />
 
             <SidebarSection
               icon={FaBox}
-              title="Produto Estoque"
+              title="Estoque"
               links={[
-                { label: "Cadastro de Produto", path: "/produtos" },
-                { label: "Gerenciar Produtos", path: "/estoque" },
+                { label: "Cadastro de Produtos", path: "/produtos" },
+                { label: "Listar Estoque", path: "/estoque" },
               ]}
             />
 
             <SidebarSection
               icon={FaConciergeBell}
-              title="Receitas"
+              title="Aulas e Receitas"
               links={[
-                { label: "Cadastro de Receita", path: "/receitas" },
-                { label: "Receitas por Aula", path: "/receitasClass" },
+                { label: "Cadastro de Receitas", path: "/receitas" },
+                { label: "Cadastro de Aulas", path: "/receitasClass" },
+                { label: "Listar Receitas", path: "/MostrarReceitas" },
+                { label: "Listar Aulas", path: "/MostrarAulas" }
               ]}
             />
 

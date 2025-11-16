@@ -56,7 +56,10 @@ const AulasReceitas = () => {
     e.preventDefault();
 
     try {
-      const receitaIds = formState.receitasSelecionadas.map((r) => r.id);
+      const receitas = formState.receitasSelecionadas.map((r) => ({
+        receitaId: r.id,         // ← nome correto que o backend pede
+        quantidade: r.quantidade ?? 1,
+      }));
 
       const response = await AulaService.RegisterAula({
         nome: formState.nome,
@@ -67,7 +70,7 @@ const AulasReceitas = () => {
         semestre: formState.semestre,
         modulo: formState.modulo,
         periodo: formState.periodo,
-        receitaIds: receitaIds, // ex: [1, 1, 2, 3, 3]
+        receitas: receitas,       // ← nome correto do campo
       });
 
       console.log("✅ Aula enviada com sucesso:", response);
@@ -77,6 +80,9 @@ const AulasReceitas = () => {
       setSubmissionMessage("❌ Erro ao cadastrar aula.");
     }
   };
+
+
+
 
   useEffect(() => {
     if (submissionMessage) {
