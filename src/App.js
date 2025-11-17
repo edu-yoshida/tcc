@@ -25,6 +25,8 @@ import PrivateRoute from "./shared/components/PrivateRoute";
 
 // 🔥 NOVO: Importa o modal global
 import StatusModal from "./shared/components/StatusModal";
+import MostrarAulas from "./features/recipe/MostrarAulas";
+import MostrarReceitas from "./features/recipe/MostrarReceitas";
 
 function App() {
   const [showSplash, setShowSplash] = useState(true);

@@ -30,10 +30,14 @@ const RecipeModal = ({ isOpen, onClose, onAddReceitas }) => {
   if (!isOpen) return null;
 
   // Filtro sem includes e sem lowercase
-  const receitasFiltradas = receitas.filter((r) => {
-    if (!r.nome) return false; 
-    if (!filtroNome.trim()) return true;
-    return r.nome === filtroNome.trim();
+  const listaReceitas = Array.isArray(receitas) ? receitas : [];
+
+  const receitasFiltradas = listaReceitas.filter((r) => {
+    const nomeReceita = r?.nome?.toLowerCase() ?? "";
+    const busca = filtroNome?.toLowerCase().trim() ?? "";
+
+    if (!busca) return true;            // sem filtro → retorna tudo
+    return nomeReceita.includes(busca); // match parcial, case-insensitive
   });
 
   // Atualiza quantidade digitada
@@ -45,17 +49,30 @@ const RecipeModal = ({ isOpen, onClose, onAddReceitas }) => {
   };
 
   const handleConfirmar = () => {
+    // Garante que receitas seja sempre um array
+    const listaReceitas = Array.isArray(receitas) ? receitas : [];
+
     const resultado = Object.entries(selecionadas)
-      .filter(([_, qtd]) => qtd && qtd !== "" && qtd > 0)
+      .filter(([_, qtd]) => {
+        const numero = Number(qtd);
+        return numero > 0 && !isNaN(numero);
+      })
       .map(([id, qtd]) => {
-        const receita = receitas.find((r) => r.id === parseInt(id));
+        const receitaId = Number(id);
+        const receita = listaReceitas.find((r) => Number(r.id) === receitaId);
+
+        if (!receita) {
+          console.warn(`Receita com id ${id} não encontrada.`);
+          return null; // evita erro
+        }
 
         return {
           id: receita.id,
-          nome: receita.nome,
-          quantidade: qtd
+          nome: receita.nome || "Sem nome",
+          quantidade: Number(qtd)
         };
-      });
+      })
+      .filter(Boolean); // remove nulls
 
     if (resultado.length === 0) {
       alert("Selecione quantidade para pelo menos uma receita!");
@@ -63,7 +80,6 @@ const RecipeModal = ({ isOpen, onClose, onAddReceitas }) => {
     }
 
     onAddReceitas(resultado);
-
     setSelecionadas({});
     onClose();
   };

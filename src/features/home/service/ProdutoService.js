@@ -25,10 +25,21 @@ async function UpdateProductStock({ id, quantidadeEstoque }) {
     }
 }
 
+async function GetProductsPages(pageSize = 5, pageNumber = 0) {
+    try {
+        const response = await api.get(
+            `/v1/api/produtos/filters/all?pageSize=${pageSize}&pageNumber=${pageNumber}`
+        );
+        return response.data || {};
+    } catch (error) {
+        throw error;
+    }
+}
+
 async function GetProducts() {
     try {
-        const response = await api.get("/v1/api/produtos/filters/all?pageSize=5&pageNumber=1");
-        return response.data || [];
+        const response = await api.get("/v1/api/produtos/produtos");
+        return response.data || {};
     } catch (error) {
         throw error;
     }
@@ -37,5 +48,6 @@ async function GetProducts() {
 export default {
     RegisterProduct,
     UpdateProductStock,
-    GetProducts
+    GetProducts,
+    GetProductsPages
 };

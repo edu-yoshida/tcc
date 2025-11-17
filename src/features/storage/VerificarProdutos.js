@@ -1,205 +1,231 @@
 import React, { useState, useEffect } from "react";
+import { FaSearch } from "react-icons/fa";
 import Sidebar from "../../shared/components/Sidebar";
-import CompraService from "../supplies/Service/CompraService";
 import ProdutoService from "../home/service/ProdutoService";
-import FornecedorService from "../supplies/Service/FornecedorService";
+import EstoqueModal from "./EstoqueModal";
+import LogoGastroFlow from "../../assets/LogoGastroFlow.png";
 
-import CompraDetalhesModal from "../../shared/components/CompraDetalhesModal.js";
+const VerificarProdutos = () => {
+  const [produtos, setProdutos] = useState([]);
+  const [produtosFiltrados, setProdutosFiltrados] = useState([]);
 
-const HistoricoCompras = () => {
-  const [entradas, setEntradas] = useState([]);
-  const [filtradas, setFiltradas] = useState([]);
-  const [produtosMap, setProdutosMap] = useState({});
-  const [fornecedoresMap, setFornecedoresMap] = useState({});
-  const [dataInicio, setDataInicio] = useState("");
-  const [dataFim, setDataFim] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
 
-  // Modal
-  const [modalOpen, setModalOpen] = useState(false);
-  const [compraSelecionada, setCompraSelecionada] = useState(null);
+  const [pageSize, setPageSize] = useState(5);   
+  const [pageNumber, setPageNumber] = useState(0); 
 
-  // Carregar produtos
-  const carregarProdutos = async () => {
+  const [filtroNome, setFiltroNome] = useState("");
+  const [filtroCategoria, setFiltroCategoria] = useState(null);
+
+  const [loadingProdutos, setLoadingProdutos] = useState(true);
+
+  // MODAL
+  const [produtoSelecionado, setProdutoSelecionado] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleAbrirModal = (produto) => {
+    setProdutoSelecionado(produto);
+    setIsModalOpen(true);
+  };
+
+  const handleFecharModal = () => {
+    setProdutoSelecionado(null);
+    setIsModalOpen(false);
+  };
+
+  // 📌 Buscar produtos da API (com paginação)
+  const fetchProdutos = async () => {
+    setLoadingProdutos(true);
     try {
-      const dados = await ProdutoService.GetProducts();
-      const mapa = {};
-      dados.forEach(p => (mapa[p.id] = p.nome));
-      setProdutosMap(mapa);
+      const data = await ProdutoService.GetProductsPages(pageSize, pageNumber);
+
+      const lista = Array.isArray(data.produtos) ? data.produtos : [];
+
+      setProdutos(lista);
+      setProdutosFiltrados(lista);
+
+      setTotal(data.total ?? 0);
+      setTotalPages(data.totalPages ?? 0);
+
     } catch (err) {
       console.error("Erro ao carregar produtos:", err);
-    }
-  };
-
-  // Carregar fornecedores
-  const carregarFornecedores = async () => {
-    try {
-      const response = await FornecedorService.GetFornecedores();
-      const fornecedores = response.content ?? response;
-      const map = {};
-      fornecedores.forEach(f => (map[f.id] = f.nomeFantasia));
-      setFornecedoresMap(map);
-    } catch (err) {
-      console.error("Erro ao carregar fornecedores:", err);
-    }
-  };
-
-  // Buscar entradas
-  const fetchEntradas = async () => {
-    setLoading(true);
-    try {
-      const data = await CompraService.getAllEntradas();
-      const ordenado = [...data].sort(
-        (a, b) => isoToNumber(b.dataEntrada) - isoToNumber(a.dataEntrada)
-      );
-      setEntradas(ordenado);
-      setFiltradas(ordenado);
-    } catch (err) {
-      console.error("Erro ao carregar histórico:", err);
+      setProdutos([]);
+      setProdutosFiltrados([]);
+      setTotal(0);
+      setTotalPages(0);
     } finally {
-      setLoading(false);
+      setLoadingProdutos(false);
     }
   };
 
+  // 🔄 Atualiza quando mudar pageSize ou pageNumber
   useEffect(() => {
-    carregarProdutos();
-    carregarFornecedores();
-    fetchEntradas();
-  }, []);
+    fetchProdutos();
+  }, [pageSize, pageNumber]);
 
-  // Utilidades de data
-  const isoDatePart = (isoString) => {
-    if (!isoString) return "";
-    if (/^\d{4}-\d{2}-\d{2}$/.test(isoString)) return isoString;
-
-    const part = isoString.split("T")[0].split(" ")[0];
-    return part.match(/^(\d{4}-\d{2}-\d{2})/)?.[1] ?? "";
-  };
-
-  const isoToNumber = (isoString) =>
-    parseInt(isoDatePart(isoString).replace(/-/g, ""), 10) || 0;
-
-  const formatFromISO = (isoString) => {
-    const [y, m, d] = isoDatePart(isoString).split("-");
-    return d && m && y ? `${d}/${m}/${y}` : "";
-  };
-
-  // Filtrar ao mudar datas
+  // 🎯 FILTRAGEM POR NOME + CATEGORIA
   useEffect(() => {
-    if (!dataInicio && !dataFim) {
-      setFiltradas(entradas);
-      return;
+    const termo = filtroNome.toLowerCase().trim();
+
+    const filtrados = produtos.filter((produto) => {
+      
+      const id = produto.id 
+      const nome = produto.nome?.toLowerCase() || "";
+      const categoria = produto.categoria || "";
+
+      const nomeMatch = !termo || nome.includes(termo);
+      const categoriaMatch = !filtroCategoria || categoria === filtroCategoria;
+
+      return nomeMatch && categoriaMatch;
+    });
+
+    setProdutosFiltrados(filtrados);
+  }, [filtroNome, filtroCategoria, produtos]);
+
+  // 🔼 Página anterior
+  const prevPage = () => {
+    if (pageNumber > 0) {
+      setPageNumber(pageNumber - 1);
     }
-
-    const inicioNum = dataInicio ? parseInt(dataInicio.replace(/-/g, ""), 10) : null;
-    const fimNum = dataFim ? parseInt(dataFim.replace(/-/g, ""), 10) : null;
-
-    const lista = entradas.filter((e) => {
-      const entradaNum = isoToNumber(e.dataEntrada);
-      if (inicioNum && entradaNum < inicioNum) return false;
-      if (fimNum && entradaNum > fimNum) return false;
-      return true;
-    });
-
-    setFiltradas(lista);
-  }, [dataInicio, dataFim, entradas]);
-
-  // Abrir modal com dados formatados
-  const abrirModal = (entrada) => {
-    setCompraSelecionada({
-      ...entrada,
-      dataFormatada: formatFromISO(entrada.dataEntrada),
-      fornecedorNome: fornecedoresMap[entrada.fornecedorId] ?? `Fornecedor #${entrada.fornecedorId}`
-    });
-
-    setModalOpen(true);
   };
+
+  // 🔽 Próxima página
+  const nextPage = () => {
+    if (pageNumber < totalPages - 1) {
+      setPageNumber(pageNumber + 1);
+    }
+  };
+
 
   return (
     <div className="flex w-screen h-screen overflow-hidden bg-orange-100 text-gray-800 font-sans">
-      <aside className="w-64 shrink-0"><Sidebar /></aside>
+      
+      <aside className="w-64 shrink-0">
+        <Sidebar />
+      </aside>
 
       <div className="flex-1 min-w-0 flex flex-col">
-        <div className="h-28 bg-gradient-to-r from-orange-400 via-yellow-500 to-orange-600 flex flex-col items-center justify-center text-white rounded-b-3xl">
-          <h2 className="text-lg font-bold">Histórico de Compras</h2>
+
+        {/* HEADER */}
+        <div className="h-28 bg-gradient-to-r from-orange-400 via-yellow-500 to-orange-600 flex items-center justify-center text-white rounded-b-3xl">
+          <h2 className="text-lg font-bold">Listar Estoque</h2>
         </div>
 
-        <div className="flex-1 flex p-6 items-center justify-center overflow-auto">
-          <div className="w-1/2 bg-white rounded-lg shadow-md p-6 flex flex-col space-y-4">
+        {/* CONTEÚDO */}
+        <div className="flex-1 flex p-6 bg-orange-100 items-center justify-center overflow-auto">
+          <div className="w-full max-w-3xl bg-white rounded-lg shadow-md p-6 space-y-4">
 
-            <h3 className="text-xl font-semibold">Compras Registradas</h3>
+            <h3 className="text-xl font-semibold">Produtos Cadastrados</h3>
 
-            <div className="flex space-x-6 items-end mt-2">
-              <div className="flex items-center space-x-2">
-                <span className="text-sm font-medium text-gray-700">De</span>
+            {/* FILTROS */}
+            <div className="flex space-x-3 items-center">
+
+              {/* FILTRO POR NOME */}
+              <div className="relative flex-1">
                 <input
-                  type="date"
-                  value={dataInicio}
-                  onChange={(e) => setDataInicio(e.target.value)}
-                  className="block rounded-md border border-gray-300 p-2 text-sm"
+                  type="text"
+                  placeholder="Filtrar por nome..."
+                  value={filtroNome}
+                  onChange={(e) => setFiltroNome(e.target.value)}
+                  className="w-full rounded-md border p-2 pl-10"
                 />
+                <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               </div>
 
-              <div className="flex items-center space-x-2">
-                <span className="text-sm font-medium text-gray-700">Até</span>
-                <input
-                  type="date"
-                  value={dataFim}
-                  onChange={(e) => setDataFim(e.target.value)}
-                  className="block rounded-md border border-gray-300 p-2 text-sm"
-                />
-              </div>
+              {/* FILTRO POR CATEGORIA */}
+              <select
+                value={filtroCategoria || ""}
+                onChange={(e) => setFiltroCategoria(e.target.value || null)}
+                className="py-2 px-4 rounded-md bg-orange-500 text-white cursor-pointer"
+              >
+                <option value="">Todas as categorias</option>
+                <option value="estocaveis">Estocáveis</option>
+                <option value="hortifruti">Hortifruti</option>
+                <option value="acougues">Açougues</option>
+                <option value="laticinios">Laticínios</option>
+              </select>
             </div>
 
             {/* TABELA */}
-            <div className="overflow-y-auto overflow-x-auto border border-gray-200 rounded-md max-h-[400px]">
-
-              {loading ? (
-                <div className="p-4 text-center text-gray-500">Carregando histórico...</div>
-              ) : filtradas.length > 0 ? (
-                <table className="w-full text-sm border">
-                  <thead className="bg-orange-200">
+            <div className="overflow-x-auto border rounded-md">
+              {loadingProdutos ? (
+                <div className="p-4 text-center text-gray-500">Carregando…</div>
+              ) : produtosFiltrados.length > 0 ? (
+                <table className="w-full text-sm">
+                  <thead className="bg-gray-100">
                     <tr>
-                      <th className="px-4 py-2 text-left">Data</th>
-                      <th className="px-4 py-2 text-left">Fornecedor</th>
-                      <th className="px-4 py-2 text-left">Observação</th>
+                      <th className="px-4 py-2 text-left">Produto</th>
+                      <th className="px-4 py-2 text-left">Categoria</th>
+                      <th className="px-4 py-2 text-left">Estoque</th>
                     </tr>
                   </thead>
-
                   <tbody>
-                    {filtradas.map((entrada) => (
+                    {produtosFiltrados.map((produto) => (
                       <tr
-                        key={entrada.id}
-                        className="hover:bg-orange-100 cursor-pointer transition"
-                        onClick={() => abrirModal(entrada)}
+                        key={produto.id}
+                        onClick={() => handleAbrirModal(produto)}
+                        className="hover:bg-[#fff5e6] cursor-pointer"
                       >
-                        <td className="px-4 py-2">{formatFromISO(entrada.dataEntrada)}</td>
-                        <td className="px-4 py-2">
-                          {fornecedoresMap[entrada.fornecedorId] ??
-                            `Fornecedor #${entrada.fornecedorId}`}
-                        </td>
-                        <td className="px-4 py-2">{entrada.observacao || "—"}</td>
+                        <td className="px-4 py-2">{produto.nome}</td>
+                        <td className="px-4 py-2">{produto.categoria || "Sem categoria"}</td>
+                        <td className="px-4 py-2">{produto.quantidadeEstoque ?? "0"}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               ) : (
-                <div className="p-4 text-center text-gray-500">Nenhuma compra encontrada.</div>
+                <div className="p-4 text-center text-gray-500">
+                  Nenhum produto encontrado.
+                </div>
               )}
             </div>
+
+            {/* PAGINAÇÃO */}
+            <div className="flex justify-between items-center pt-4">
+              <button
+                onClick={prevPage}
+                disabled={pageNumber === 0}
+                className="px-4 py-2 bg-gray-300 rounded disabled:opacity-40"
+              >
+                Anterior
+              </button>
+
+              <span className="text-sm">
+                Página {pageNumber + 1} de {totalPages}
+              </span>
+
+              <button
+                onClick={nextPage}
+                disabled={pageNumber >= totalPages - 1}
+                className="px-4 py-2 bg-gray-300 rounded disabled:opacity-40"
+              >
+                Próxima
+              </button>
+            </div>
+
           </div>
         </div>
+
       </div>
 
-      {/* MODAL DE DETALHES */}
-      <CompraDetalhesModal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-        compra={compraSelecionada}
-        produtosMap={produtosMap}
+      {/* LOGO */}
+      <img
+        src={LogoGastroFlow}
+        alt="Logo"
+        className="hidden md:block absolute right-10 bottom-10 w-40 opacity-80"
       />
+
+      {/* MODAL */}
+      {produtoSelecionado && (
+        <EstoqueModal
+          isOpen={isModalOpen}
+          onClose={handleFecharModal}
+          produtoSelecionado={produtoSelecionado}
+        />
+      )}
     </div>
   );
 };
 
-export default HistoricoCompras;
+export default VerificarProdutos;
