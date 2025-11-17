@@ -69,7 +69,6 @@ const CadastroCompra = () => {
       dataEntrada: formState.dataEntrada,
       observacao: formState.observacao || "Compra registrada via sistema",
       fornecedorId: Number(formState.fornecedorId),
-
       produtos: formState.produtos.map((p) => ({
         produtoId: Number(p.id),
         quantidade: Number(p.quantidadeEstoque),
@@ -99,28 +98,17 @@ const CadastroCompra = () => {
 
   return (
     <div className="flex w-screen h-screen overflow-hidden bg-[#ffffff] text-gray-800 font-sans">
-
       <div className="flex-1 min-w-0 flex flex-col overflow-hidden bg-orange-100 ml-64">
-        
-        {/* TOPO */}
-        <div className="h-28 shrink-0 bg-gradient-to-r from-orange-400 via-yellow-500 to-orange-600 
-                        flex flex-col items-center justify-center text-white rounded-b-3xl overflow-hidden">
+        <div className="h-28 shrink-0 bg-gradient-to-r from-orange-400 via-yellow-500 to-orange-600 flex flex-col items-center justify-center text-white rounded-b-3xl overflow-hidden">
           <h2 className="text-2xl font-bold">Cadastrar Compra</h2>
         </div>
 
-        {/* CONTEÚDO */}
         <div className="flex-1 min-h-0 flex items-center justify-center p-4 md:p-6 relative">
-
-          <div className="w-full max-w-[1400px] mx-auto flex flex-col md:flex-row 
-                          gap-12 px-6">
-
-            {/* CARD */}
+          <div className="w-full max-w-[1400px] mx-auto flex flex-col md:flex-row gap-12 px-6">
             <div className="w-full md:w-[520px] bg-white rounded-2xl p-8 shadow-lg flex flex-col">
               <h3 className="text-xl font-semibold mb-6">Cadastro de Compra</h3>
 
               <form onSubmit={handleSubmit} className="space-y-5">
-
-                {/* Data */}
                 <div>
                   <label className="block text-sm font-medium mb-1">Data da Entrada</label>
                   <input
@@ -132,7 +120,6 @@ const CadastroCompra = () => {
                   />
                 </div>
 
-                {/* Observacao */}
                 <div>
                   <label className="block text-sm font-medium mb-1">Observação</label>
                   <textarea
@@ -143,7 +130,6 @@ const CadastroCompra = () => {
                   />
                 </div>
 
-                {/* Fornecedor */}
                 <div>
                   <button
                     type="button"
@@ -160,20 +146,23 @@ const CadastroCompra = () => {
                   )}
                 </div>
 
-                {/* Produtos */}
                 <div className="flex flex-col space-y-3">
                   <button
                     type="button"
                     onClick={openProductModal}
-                    className="py-2 px-4 rounded-lg text-white bg-green-600 hover:bg-green-700 
-                              flex items-center justify-center shadow-md"
+                    className="py-2 px-4 rounded-lg text-white bg-green-600 hover:bg-green-700 flex items-center justify-center shadow-md"
                   >
                     <FaPlusCircle className="mr-2" /> Adicionar Produtos
                   </button>
 
                   {formState.produtos.length > 0 && (
-                    <ul className="divide-y border rounded-md p-3 bg-gray-50
-                                   max-h-56 overflow-y-auto">
+                    <ul
+                      className="
+                        divide-y border rounded-md p-3 bg-gray-50
+                        h-44 overflow-y-auto
+                        scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200
+                      "
+                    >
                       {formState.produtos.map((item, index) => (
                         <li key={index} className="flex justify-between items-center py-3">
                           <span className="flex-1 text-[15px] font-medium">{item.nomeProduto}</span>
@@ -196,7 +185,6 @@ const CadastroCompra = () => {
                   )}
                 </div>
 
-                {/* Botão */}
                 <div className="flex flex-col space-y-3 pt-2">
                   <button
                     type="submit"
@@ -205,11 +193,9 @@ const CadastroCompra = () => {
                     Registrar Entrada
                   </button>
                 </div>
-
               </form>
             </div>
 
-            {/* LOGO */}
             <div className="hidden md:flex flex-1 items-center justify-center rounded-2xl p-6">
               <img
                 src={LogoGastroFlow}
@@ -217,12 +203,10 @@ const CadastroCompra = () => {
                 className="w-full max-w-[480px] h-[21rem] object-contain"
               />
             </div>
-
           </div>
         </div>
       </div>
 
-      {/* Modais */}
       <StockModal
         isOpen={isProductModalOpen}
         onClose={closeProductModal}
