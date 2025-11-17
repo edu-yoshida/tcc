@@ -76,8 +76,8 @@ function App() {
               <Route path="/estoque" element={<VerificarProdutos />} />
               <Route path="/receitas" element={<CadastroDeReceita />} />
               <Route path="/receitasClass" element={<AulasReceitas />} />
-              <Route path="/MostrarReceitas" element={<MostrarReceitas />} />
-              <Route path="/MostrarAulas" element={<MostrarAulas />} />
+              <Route path="/mostrarReceitas" element={<MostrarReceitas />} />
+              <Route path="/mostrarAulas" element={<MostrarAulas />} />
               <Route path="/compra" element={<CadastroCompra />} />
               <Route path="/fornecedor" element={<Fornecedor />} />
               <Route path="/historicoCompra" element={<HistoricoCompra />} />

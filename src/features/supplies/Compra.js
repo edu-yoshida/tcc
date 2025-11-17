@@ -20,18 +20,14 @@ const CadastroCompra = () => {
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [isFornecedorModalOpen, setIsFornecedorModalOpen] = useState(false);
 
-  // === STATUS MODAL store ===
   const { showLoading, showSuccess, showError } = useStatusModalStore();
 
-  // Modal de produtos
   const openProductModal = () => setIsProductModalOpen(true);
   const closeProductModal = () => setIsProductModalOpen(false);
 
-  // Modal fornecedor
   const openFornecedorModal = () => setIsFornecedorModalOpen(true);
   const closeFornecedorModal = () => setIsFornecedorModalOpen(false);
 
-  // Recebe produtos do modal
   const handleAddProducts = (produtosSelecionados) => {
     setFormState((prev) => ({
       ...prev,
@@ -64,7 +60,6 @@ const CadastroCompra = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validação simples
     if (!formState.fornecedorId || formState.produtos.length === 0) {
       showError("Selecione um fornecedor e adicione pelo menos um produto.");
       return;
@@ -89,7 +84,6 @@ const CadastroCompra = () => {
 
       showSuccess("Compra registrada com sucesso!");
 
-      // Limpa formulário
       setFormState({
         dataEntrada: "",
         fornecedorId: "",
@@ -97,7 +91,6 @@ const CadastroCompra = () => {
         observacao: "",
         produtos: [],
       });
-
     } catch (error) {
       console.error("Erro ao cadastrar entrada:", error);
       showError("Erro ao registrar a compra.");
@@ -108,16 +101,21 @@ const CadastroCompra = () => {
     <div className="flex w-screen h-screen overflow-hidden bg-[#ffffff] text-gray-800 font-sans">
 
       <div className="flex-1 min-w-0 flex flex-col overflow-hidden bg-orange-100 ml-64">
-        <div className="h-28 shrink-0 bg-gradient-to-r from-orange-400 via-yellow-500 to-orange-600 flex flex-col items-center justify-center text-white rounded-b-3xl overflow-hidden">
+        
+        {/* TOPO */}
+        <div className="h-28 shrink-0 bg-gradient-to-r from-orange-400 via-yellow-500 to-orange-600 
+                        flex flex-col items-center justify-center text-white rounded-b-3xl overflow-hidden">
           <h2 className="text-2xl font-bold">Cadastrar Compra</h2>
         </div>
 
+        {/* CONTEÚDO */}
         <div className="flex-1 min-h-0 flex items-center justify-center p-4 md:p-6 relative">
-          <div className="w-full max-w-6xl mx-auto flex flex-col md:flex-row gap-8">
-            
+
+          <div className="w-full max-w-[1400px] mx-auto flex flex-col md:flex-row 
+                          gap-12 px-6">
+
             {/* CARD */}
             <div className="w-full md:w-[520px] bg-white rounded-2xl p-8 shadow-lg flex flex-col">
-
               <h3 className="text-xl font-semibold mb-6">Cadastro de Compra</h3>
 
               <form onSubmit={handleSubmit} className="space-y-5">
@@ -134,7 +132,7 @@ const CadastroCompra = () => {
                   />
                 </div>
 
-                {/* Observação */}
+                {/* Observacao */}
                 <div>
                   <label className="block text-sm font-medium mb-1">Observação</label>
                   <textarea
@@ -167,19 +165,22 @@ const CadastroCompra = () => {
                   <button
                     type="button"
                     onClick={openProductModal}
-                    className="py-2 px-4 rounded-lg text-white bg-green-600 hover:bg-green-700 flex items-center justify-center shadow-md"
+                    className="py-2 px-4 rounded-lg text-white bg-green-600 hover:bg-green-700 
+                              flex items-center justify-center shadow-md"
                   >
                     <FaPlusCircle className="mr-2" /> Adicionar Produtos
                   </button>
 
                   {formState.produtos.length > 0 && (
-                    <ul className="divide-y border rounded-md p-3 bg-gray-50">
+                    <ul className="divide-y border rounded-md p-3 bg-gray-50
+                                   max-h-56 overflow-y-auto">
                       {formState.produtos.map((item, index) => (
                         <li key={index} className="flex justify-between items-center py-3">
                           <span className="flex-1 text-[15px] font-medium">{item.nomeProduto}</span>
 
                           <span className="text-[14px] text-gray-600 mr-6 whitespace-nowrap">
-                            Qtd: <strong>{item.quantidadeEstoque}</strong> | Preço: <strong>R$ {Number(item.valor).toFixed(2)}</strong>
+                            Qtd: <strong>{item.quantidadeEstoque}</strong> | Preço:{" "}
+                            <strong>R$ {Number(item.valor).toFixed(2)}</strong>
                           </span>
 
                           <button
@@ -210,18 +211,30 @@ const CadastroCompra = () => {
 
             {/* LOGO */}
             <div className="hidden md:flex flex-1 items-center justify-center rounded-2xl p-6">
-              <img src={LogoGastroFlow} alt="Logo" className="w-full h-[21rem] object-contain" />
+              <img
+                src={LogoGastroFlow}
+                alt="Logo"
+                className="w-full max-w-[480px] h-[21rem] object-contain"
+              />
             </div>
 
           </div>
         </div>
       </div>
 
-      {/* MODAIS */}
-      <StockModal isOpen={isProductModalOpen} onClose={closeProductModal} onAddIngredients={handleAddProducts} />
-      <FornecedorModal isOpen={isFornecedorModalOpen} onClose={closeFornecedorModal} onSelect={handleSelectFornecedor} />
+      {/* Modais */}
+      <StockModal
+        isOpen={isProductModalOpen}
+        onClose={closeProductModal}
+        onAddIngredients={handleAddProducts}
+      />
 
-      {/* STATUS MODAL */}
+      <FornecedorModal
+        isOpen={isFornecedorModalOpen}
+        onClose={closeFornecedorModal}
+        onSelect={handleSelectFornecedor}
+      />
+
       <StatusModal />
     </div>
   );

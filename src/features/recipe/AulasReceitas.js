@@ -1,13 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import Sidebar from '../../shared/components/Sidebar';
-import RecipeModal from '../../shared/components/RecipeModal';
-import AulaService from '../home/service/AulaService';
+import React, { useState } from "react";
+import Sidebar from "../../shared/components/Sidebar";
+import RecipeModal from "../../shared/components/RecipeModal";
+import AulaService from "../home/service/AulaService";
+
+// ⬇️ Import do modal igual na tela de fornecedor
+import { useStatusModalStore } from "../../shared/store/modal-store";
+import StatusModal from "../../shared/components/StatusModal";
 
 // Ícone de remover
 const XIcon = ({ className = "w-5 h-5" }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" className={className} width="24" height="24"
-    viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
-    strokeLinecap="round" strokeLinejoin="round">
+  <svg xmlns="http://www.w3.org/2000/svg"
+    className={className} width="24" height="24" fill="none"
+    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M18 6 6 18" /><path d="m6 6 12 12" />
   </svg>
 );
@@ -22,46 +26,50 @@ const AulasReceitas = () => {
     semestre: "",
     modulo: "",
     periodo: "",
-    receitasSelecionadas: [], // ← única fonte de verdade
+    receitasSelecionadas: [],
   });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [submissionMessage, setSubmissionMessage] = useState(null);
 
-  // Atualiza campos do formulário
+  // ⬇️ Obtém funções do modal de status (igual na tela Fornecedor)
+  const { showLoading, showSuccess, showError } = useStatusModalStore();
+
+  // Atualiza campos
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormState((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Adiciona múltiplas receitas (inclusive duplicadas)
-  const handleAddReceitas = (novasReceitas) => {
+  // Adiciona receitas
+  const handleAddReceitas = (novas) => {
     setFormState((prev) => ({
       ...prev,
-      receitasSelecionadas: [...prev.receitasSelecionadas, ...novasReceitas],
+      receitasSelecionadas: [...prev.receitasSelecionadas, ...novas],
     }));
   };
 
-  // Remove uma receita específica (apenas uma ocorrência)
+  // Remove uma receita específica
   const handleRemoveReceita = (index) => {
     setFormState((prev) => {
-      const novas = [...prev.receitasSelecionadas];
-      novas.splice(index, 1);
-      return { ...prev, receitasSelecionadas: novas };
+      const copia = [...prev.receitasSelecionadas];
+      copia.splice(index, 1);
+      return { ...prev, receitasSelecionadas: copia };
     });
   };
 
-  // Submete o formulário
+  // Envio
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
+      showLoading("Cadastrando aula...");
+
       const receitas = formState.receitasSelecionadas.map((r) => ({
-        receitaId: r.id,         // ← nome correto que o backend pede
+        receitaId: r.id,
         quantidade: r.quantidade ?? 1,
       }));
 
-      const response = await AulaService.RegisterAula({
+      await AulaService.RegisterAula({
         nome: formState.nome,
         descricao: formState.descricao,
         data: formState.data,
@@ -70,33 +78,45 @@ const AulasReceitas = () => {
         semestre: formState.semestre,
         modulo: formState.modulo,
         periodo: formState.periodo,
-        receitas: receitas,       // ← nome correto do campo
+        receitas: receitas,
       });
 
-      console.log("✅ Aula enviada com sucesso:", response);
-      setSubmissionMessage("✅ Aula cadastrada com sucesso!");
-    } catch (error) {
-      console.error("Erro ao enviar aula:", error);
-      setSubmissionMessage("❌ Erro ao cadastrar aula.");
+      showSuccess("Aula cadastrada com sucesso!");
+
+      // limpa formulário
+      setFormState({
+        nome: "",
+        descricao: "",
+        data: "",
+        instrutor: "",
+        materia: "",
+        semestre: "",
+        modulo: "",
+        periodo: "",
+        receitasSelecionadas: [],
+      });
+    } catch (err) {
+      console.error("❌ Erro no cadastro da aula:", err);
+
+      // ❗ CAPTURA ERRO DO BACKEND (incluindo 'Estoque insuficiente...')
+      const backendMsg =
+        err?.response?.data?.message ||
+        err?.response?.data?.error ||
+        err?.response?.data ||
+        "Erro inesperado ao cadastrar aula.";
+
+      showError(backendMsg);
     }
   };
 
-
-
-
-  useEffect(() => {
-    if (submissionMessage) {
-      const timer = setTimeout(() => setSubmissionMessage(null), 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [submissionMessage]);
-
   return (
     <div className="flex w-screen h-screen overflow-hidden bg-gray-50 text-gray-800 font-sans">
-      {/* Sidebar */}
 
-      {/* Conteúdo principal */}
+      {/* Sidebar */}
+      <Sidebar />
+
       <div className="flex-1 flex flex-col bg-orange-100 ml-64">
+
         {/* Topbar */}
         <div className="h-28 shrink-0 bg-gradient-to-r from-orange-500 via-yellow-400 to-orange-600 flex flex-col items-center justify-center text-white rounded-b-3xl shadow-xl px-4">
           <h2 className="text-2xl font-extrabold tracking-tight">
@@ -110,18 +130,12 @@ const AulasReceitas = () => {
         {/* Formulário */}
         <div className="flex-1 flex items-start justify-center p-6 overflow-y-auto">
           <div className="w-full max-w-3xl bg-white rounded-xl shadow-2xl p-6 border border-orange-200">
-            {submissionMessage && (
-              <div className="mb-6 p-4 bg-green-100 text-green-800 border border-green-300 rounded-lg text-center font-medium">
-                {submissionMessage}
-              </div>
-            )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
+
               {/* Nome */}
               <div>
-                <label className="block text-sm font-semibold mb-2">
-                  Nome
-                </label>
+                <label className="block text-sm font-semibold mb-2">Nome</label>
                 <input
                   type="text"
                   name="nome"
@@ -134,9 +148,7 @@ const AulasReceitas = () => {
 
               {/* Descrição */}
               <div>
-                <label className="block text-sm font-semibold mb-2">
-                  Descrição
-                </label>
+                <label className="block text-sm font-semibold mb-2">Descrição</label>
                 <input
                   type="text"
                   name="descricao"
@@ -147,60 +159,52 @@ const AulasReceitas = () => {
                 />
               </div>
 
-              {/* Data e Instrutor */}
+              {/* Data / Instrutor */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-semibold mb-2">
-                    Data
-                  </label>
+                  <label className="block text-sm font-semibold mb-2">Data</label>
                   <input
                     type="date"
                     name="data"
                     value={formState.data}
                     onChange={handleChange}
-                    className="block w-full rounded-lg border-2 border-gray-300 p-3 shadow-inner focus:border-orange-500 transition"
+                    className="block w-full rounded-lg border-2 border-gray-300 p-3"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold mb-2">
-                    Instrutor
-                  </label>
+                  <label className="block text-sm font-semibold mb-2">Instrutor</label>
                   <input
                     type="text"
                     name="instrutor"
                     value={formState.instrutor}
                     onChange={handleChange}
-                    className="block w-full rounded-lg border-2 border-gray-300 p-3 shadow-inner focus:border-orange-500 transition"
+                    className="block w-full rounded-lg border-2 border-gray-300 p-3"
                   />
                 </div>
               </div>
 
-              {/* Matéria */}
+              {/* Matéria */}
               <div>
-                <label className="block text-sm font-semibold mb-2">
-                  Matéria
-                </label>
+                <label className="block text-sm font-semibold mb-2">Matéria</label>
                 <input
                   type="text"
                   name="materia"
                   value={formState.materia}
                   onChange={handleChange}
-                  className="block w-full rounded-lg border-2 border-gray-300 p-3 shadow-inner focus:border-orange-500 transition"
+                  className="block w-full rounded-lg border-2 border-gray-300 p-3"
                 />
               </div>
 
-              {/* Semestre, Módulo e Período */}
+              {/* Semestre / Módulo / Período */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                 <div>
-                  <label className="block text-sm font-semibold mb-2">
-                    Semestre
-                  </label>
+                  <label className="block text-sm font-semibold mb-2">Semestre</label>
                   <select
                     name="semestre"
                     value={formState.semestre}
                     onChange={handleChange}
-                    className="block w-full rounded-lg border-2 border-gray-300 p-3 shadow-inner bg-white focus:border-orange-500 transition"
+                    className="w-full rounded-lg border-2 border-gray-300 p-3"
                   >
                     <option value="">Selecione</option>
                     <option value="1">1º</option>
@@ -209,14 +213,12 @@ const AulasReceitas = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold mb-2">
-                    Módulo
-                  </label>
+                  <label className="block text-sm font-semibold mb-2">Módulo</label>
                   <select
                     name="modulo"
                     value={formState.modulo}
                     onChange={handleChange}
-                    className="block w-full rounded-lg border-2 border-gray-300 p-3 shadow-inner bg-white focus:border-orange-500 transition"
+                    className="w-full rounded-lg border-2 border-gray-300 p-3"
                   >
                     <option value="">Selecione</option>
                     <option value="1">1</option>
@@ -226,14 +228,12 @@ const AulasReceitas = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold mb-2">
-                    Período
-                  </label>
+                  <label className="block text-sm font-semibold mb-2">Período</label>
                   <select
                     name="periodo"
                     value={formState.periodo}
                     onChange={handleChange}
-                    className="block w-full rounded-lg border-2 border-gray-300 p-3 shadow-inner bg-white focus:border-orange-500 transition"
+                    className="w-full rounded-lg border-2 border-gray-300 p-3"
                   >
                     <option value="">Selecione</option>
                     <option value="Matutino">Matutino</option>
@@ -248,28 +248,29 @@ const AulasReceitas = () => {
                 <label className="block text-sm font-semibold mb-2">
                   Receitas Associadas
                 </label>
-                <div className="flex items-center space-x-3">
-                  <button
-                    type="button"
-                    onClick={() => setIsModalOpen(true)}
-                    className="flex items-center justify-center flex-grow py-3 px-4 rounded-lg shadow-md text-sm font-bold text-orange-800 bg-orange-200 hover:bg-orange-300 border-2 border-orange-300 transition"
-                  >
-                    Selecionar Receitas ({formState.receitasSelecionadas.length})
-                  </button>
-                </div>
 
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(true)}
+                  className="w-full py-3 rounded-lg bg-orange-200 border-2 border-orange-300 text-orange-800 font-bold hover:bg-orange-300 transition"
+                >
+                  Selecionar Receitas ({formState.receitasSelecionadas.length})
+                </button>
+
+                {/* Lista */}
                 <div className="mt-3 space-y-2 max-h-40 overflow-y-auto p-2 border border-dashed border-gray-300 rounded-lg bg-gray-50">
                   {formState.receitasSelecionadas.length > 0 ? (
-                    formState.receitasSelecionadas.map((recipe, index) => (
+                    formState.receitasSelecionadas.map((rec, index) => (
                       <div
-                        key={`${recipe.id}-${index}`}
-                        className="flex justify-between items-center p-2 text-sm bg-white rounded-md shadow-sm border border-gray-100"
+                        key={`${rec.id}-${index}`}
+                        className="flex justify-between items-center bg-white p-2 rounded shadow"
                       >
-                        <span className="truncate">{recipe.nome}</span>
+                        <span>{rec.nome}</span>
+
                         <button
                           type="button"
                           onClick={() => handleRemoveReceita(index)}
-                          className="text-red-500 hover:text-red-700 transition p-1"
+                          className="text-red-500 hover:text-red-700"
                         >
                           <XIcon className="w-4 h-4" />
                         </button>
@@ -277,17 +278,17 @@ const AulasReceitas = () => {
                     ))
                   ) : (
                     <p className="text-center text-gray-500 text-sm italic">
-                      Nenhuma receita associada a esta aula ainda.
+                      Nenhuma receita selecionada.
                     </p>
                   )}
                 </div>
               </div>
 
-              {/* Botão de submit */}
+              {/* Botão submit */}
               <div className="flex justify-end pt-4">
                 <button
                   type="submit"
-                  className="py-3 px-6 rounded-lg shadow-lg text-base font-bold text-white bg-orange-600 hover:bg-orange-700 transition transform hover:scale-[1.02]"
+                  className="py-3 px-6 bg-orange-600 text-white rounded-lg font-bold shadow hover:bg-orange-700 transition"
                 >
                   Cadastrar Aula
                 </button>
@@ -297,12 +298,15 @@ const AulasReceitas = () => {
         </div>
       </div>
 
-      {/* Modal de receitas */}
+      {/* Modal de Receitas */}
       <RecipeModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onAddReceitas={handleAddReceitas}
       />
+
+      {/* 🔥 Modal global de status */}
+      <StatusModal />
     </div>
   );
 };

@@ -39,6 +39,7 @@ const CadastroDeProdutos = () => {
         nome: formState.nome,
         unidadeMedida: formState.unidadeMedida,
         categoria: formState.categoria,
+        quantidadeEstoque: 0
       });
 
       showSuccess("Produto cadastrado com sucesso!");

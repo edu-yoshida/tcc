@@ -84,8 +84,8 @@ const Sidebar = () => {
               links={[
                 { label: "Cadastro de Receitas", path: "/receitas" },
                 { label: "Cadastro de Aulas", path: "/receitasClass" },
-                { label: "Listar Receitas", path: "/MostrarReceitas" },
-                { label: "Listar Aulas", path: "/MostrarAulas" }
+                { label: "Listar Receitas", path: "/mostrarReceitas" },
+                { label: "Listar Aulas", path: "/mostrarAulas" }
               ]}
             />
 
