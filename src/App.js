@@ -13,8 +13,8 @@ import SplashScreen from "./features/home/components/SplashScreen";
 import Fornecedor from "./features/supplies/Fornecedor";
 import HistoricoCompra from "./features/supplies/HistoricoCompra";
 import PrivateLayout from "./shared/components/PrivateLayout";
-import MostrarAulas from "./features/recipe/MostrarAulas"
-import MostrarReceitas from "./features/recipe/MostrarReceitas"
+
+
 
 import { Toaster } from "react-hot-toast";
 import { requestForToken, onMessageListener } from "./firebase";
