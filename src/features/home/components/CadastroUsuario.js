@@ -53,7 +53,8 @@ const CadastroUsuario = () => {
             const data = await LoginService.registerUser({
                 name: form.usuario,
                 email: form.email,
-                password: form.senha
+                password: form.senha,
+                picture: null
             });
             console.log(data);
             setForm({ usuario: '', email: '', senha: '', confirmarSenha: ''});

@@ -14,6 +14,8 @@ import Fornecedor from "./features/supplies/Fornecedor";
 import HistoricoCompra from "./features/supplies/HistoricoCompra";
 import PrivateLayout from "./shared/components/PrivateLayout";
 
+
+
 import { Toaster } from "react-hot-toast";
 import { requestForToken, onMessageListener } from "./firebase";
 import useAuthStore from "./shared/store/auth-store";
@@ -74,12 +76,12 @@ function App() {
               <Route path="/estoque" element={<VerificarProdutos />} />
               <Route path="/receitas" element={<CadastroDeReceita />} />
               <Route path="/receitasClass" element={<AulasReceitas />} />
+              <Route path="/MostrarReceitas" element={<MostrarReceitas />} />
+              <Route path="/MostrarAulas" element={<MostrarAulas />} />
               <Route path="/compra" element={<CadastroCompra />} />
               <Route path="/fornecedor" element={<Fornecedor />} />
               <Route path="/historicoCompra" element={<HistoricoCompra />} />
-              <Route path="/MostrarAulas" element={<MostrarAulas />} />
-              <Route path="/MostrarReceitas" element={<MostrarReceitas />} />
-
+              
             </Route>
           </Routes>
         </Router>

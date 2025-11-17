@@ -1,44 +1,43 @@
 import api from "../../../shared/utils/api";
 
-async function registerUser({ name, email, password }) {
+// Registrar usuário padrão (STANDARD)
+async function registerUser(data) {
   try {
-    const response = await api.post("/v1/api/auth/register", { name, email, password })
-    console.log(response)
-    return response.data
+    const response = await api.post("/v1/api/auth/register", data);
+    return response.data;
   } catch (error) {
-    console.error(error);
+    console.error("Erro no registro:", error);
     throw error;
   }
 }
 
 async function loginUser({ email, password }) {
   try {
-    const response = await api.post("/v1/api/auth/login", { email, password })
-    console.log(response)
-    return response.data
+    const response = await api.post("/v1/api/auth/login", { email, password });
+    return response.data;
   } catch (error) {
-    console.error(error);
+    console.error("Erro no login:", error);
     throw error;
   }
 }
 
 async function sendToken(tokenData) {
   try {
-    const response = await api.put('/v1/api/notifications/token', tokenData);
-    console.log(response)
+    const response = await api.put("/v1/api/notifications/token", tokenData);
     return response.data;
   } catch (error) {
-    console.error('Erro no envio do token:', error.response || error);
+    console.error("Erro ao enviar token FCM:", error);
 
-    let errorMessage = 'Erro ao fazer login. Por favor, tente novamente.';
-    if (error.response && error.response.status === 401) {
-      errorMessage = 'Email ou senha inválidos.';
-    } else if (error.response && error.response.data && error.response.data.message) {
-      errorMessage = error.response.data.message;
+    let msg = "Erro ao fazer login. Tente novamente.";
+
+    if (error.response?.status === 401) {
+      msg = "Email ou senha inválidos.";
+    } else if (error.response?.data?.message) {
+      msg = error.response.data.message;
     }
 
-    throw new Error(errorMessage);
+    throw new Error(msg);
   }
 }
 
-export default { registerUser, loginUser, sendToken }
+export default { registerUser, loginUser, sendToken };
