@@ -47,6 +47,7 @@ const CadastroDeProdutos = () => {
         nome: "",
         unidadeMedida: "",
         categoria: "",
+        quantidadeEstoque: 0
       });
 
     } catch (err) {
