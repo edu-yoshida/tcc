@@ -219,7 +219,7 @@ const CadastroCompra = () => {
         onSelect={handleSelectFornecedor}
       />
 
-      <StatusModal />
+      
     </div>
   );
 };
