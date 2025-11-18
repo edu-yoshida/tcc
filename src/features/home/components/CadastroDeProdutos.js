@@ -138,7 +138,7 @@ const CadastroDeProdutos = () => {
                     >
                       <option value="">Selecione a categoria</option>
                       <option value="estocaveis">Estocáveis</option>
-                      <option value="hortifruiti">Hortifrúti</option>
+                      <option value="hortifruti">Hortifrúti</option>
                       <option value="acougues">Açougues</option>
                       <option value="laticinios">Laticínios</option>
                     </select>
@@ -185,7 +185,7 @@ const CadastroDeProdutos = () => {
       </div>
 
       {/* STATUS MODAL */}
-      <StatusModal />
+
     </div>
   );
 };

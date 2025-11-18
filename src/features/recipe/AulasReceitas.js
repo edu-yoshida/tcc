@@ -272,7 +272,7 @@ const AulasReceitas = () => {
                           onClick={() => handleRemoveReceita(index)}
                           className="text-red-500 hover:text-red-700"
                         >
-                          <XIcon className="w-4 h-4" />
+                          <XIcon className="w-6 h-6" />
                         </button>
                       </div>
                     ))

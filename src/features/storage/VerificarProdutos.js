@@ -12,8 +12,8 @@ const VerificarProdutos = () => {
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
 
-  const [pageSize, setPageSize] = useState(5);   
-  const [pageNumber, setPageNumber] = useState(0); 
+  const [pageSize, setPageSize] = useState(5);
+  const [pageNumber, setPageNumber] = useState(0);
 
   const [filtroNome, setFiltroNome] = useState("");
   const [filtroCategoria, setFiltroCategoria] = useState(null);
@@ -35,15 +35,27 @@ const VerificarProdutos = () => {
   };
 
   // 📌 Buscar produtos da API (com paginação)
-  const fetchProdutos = async () => {
+  const fetchProdutos = async (nome, categoria) => { // <-- Receber filtros como argumento
     setLoadingProdutos(true);
+    // IMPORTANTE: Resetar para a primeira página ao aplicar um novo filtro
+    // se o filtro não for o mesmo da busca atual.
+    const pageToFetch = pageNumber;
+
     try {
-      const data = await ProdutoService.GetProductsPages(pageSize, pageNumber);
+      // Altere o ProdutoService.GetProductsPages para aceitar mais parâmetros
+      const data = await ProdutoService.GetProductsPages(
+        pageSize,
+        pageToFetch,
+        nome,          // Novo
+        categoria      // Novo
+      );
 
       const lista = Array.isArray(data.produtos) ? data.produtos : [];
 
+      // Ao buscar do servidor, a lista 'data.produtos' JÁ VEM FILTRADA e PAGINADA
       setProdutos(lista);
-      setProdutosFiltrados(lista);
+      // Não precisamos mais de 'produtosFiltrados' e o filtro local
+      setProdutosFiltrados(lista); // Pode ser removido, ou manter para simplificação
 
       setTotal(data.total ?? 0);
       setTotalPages(data.totalPages ?? 0);
@@ -60,28 +72,18 @@ const VerificarProdutos = () => {
   };
 
   // 🔄 Atualiza quando mudar pageSize ou pageNumber
-  useEffect(() => {
-    fetchProdutos();
-  }, [pageSize, pageNumber]);
+
 
   // 🎯 FILTRAGEM POR NOME + CATEGORIA
   useEffect(() => {
-    const termo = filtroNome.toLowerCase().trim();
+   
 
-    const filtrados = produtos.filter((produto) => {
-      
-      const id = produto.id 
-      const nome = produto.nome?.toLowerCase() || "";
-      const categoria = produto.categoria || "";
+    fetchProdutos(filtroNome, filtroCategoria);
 
-      const nomeMatch = !termo || nome.includes(termo);
-      const categoriaMatch = !filtroCategoria || categoria === filtroCategoria;
+    
+  }, [pageSize, pageNumber,filtroNome, filtroCategoria]);
 
-      return nomeMatch && categoriaMatch;
-    });
 
-    setProdutosFiltrados(filtrados);
-  }, [filtroNome, filtroCategoria, produtos]);
 
   // 🔼 Página anterior
   const prevPage = () => {
@@ -100,7 +102,7 @@ const VerificarProdutos = () => {
 
   return (
     <div className="flex w-screen h-screen overflow-hidden bg-orange-100 text-gray-800 font-sans">
-      
+
       <aside className="w-64 shrink-0">
         <Sidebar />
       </aside>
@@ -127,7 +129,10 @@ const VerificarProdutos = () => {
                   type="text"
                   placeholder="Filtrar por nome..."
                   value={filtroNome}
-                  onChange={(e) => setFiltroNome(e.target.value)}
+                  onChange={(e) => {
+                    setFiltroNome(e.target.value)
+                    setPageNumber(0)
+                  }}
                   className="w-full rounded-md border p-2 pl-10"
                 />
                 <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -136,7 +141,11 @@ const VerificarProdutos = () => {
               {/* FILTRO POR CATEGORIA */}
               <select
                 value={filtroCategoria || ""}
-                onChange={(e) => setFiltroCategoria(e.target.value || null)}
+                onChange={(e) => {
+                  setFiltroCategoria(e.target.value || "")
+                  setPageNumber(0)
+
+                }}
                 className="py-2 px-4 rounded-md bg-orange-500 text-white cursor-pointer"
               >
                 <option value="">Todas as categorias</option>

@@ -32,7 +32,7 @@ async function UpdateProductStock({ id, quantidadeEstoque }) {
     }
 }
 
-// 🔥 Buscar 1 produto pelo ID — CORRETO PELO SEU SWAGGER
+
 async function GetProductById(id) {
     try {
         const response = await api.get(`/v1/api/produtos?id=${id}`);
@@ -46,7 +46,7 @@ async function GetProductById(id) {
 async function GetProductsPages(pageSize = 5, pageNumber = 0) {
     try {
         const response = await api.get(
-            `/v1/api/produtos/filters/all?pageSize=${pageSize}&pageNumber=${pageNumber}`
+            `/v1/api/produtos/filters/all?pageSize=${pageSize}&pageNumber=${pageNumber}&nome=${nome}&categoria=${categoria}`
         );
         return response.data || {};
     } catch (error) {
