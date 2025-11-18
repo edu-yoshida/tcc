@@ -68,7 +68,7 @@ const ListarReceitasModal = ({ isOpen, onClose, receitaSelecionada }) => {
                                 receitaSelecionada.produtos.map((p, index) => (
                                     <tr key={index}>
                                         <td className="px-4 py-2 text-gray-800">
-                                            {p.produtoId}
+                                            {p.nomeProduto}
                                         </td>
                                         <td className="px-4 py-2 text-gray-800">
                                             {p.quantidade}

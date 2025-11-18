@@ -25,10 +25,10 @@ async function UpdateProductStock({ id, quantidadeEstoque }) {
     }
 }
 
-async function GetProductsPages(pageSize = 5, pageNumber = 0) {
+async function GetProductsPages(pageSize = 5, pageNumber = 0, nome, categoria) {
     try {
         const response = await api.get(
-            `/v1/api/produtos/filters/all?pageSize=${pageSize}&pageNumber=${pageNumber}`
+            `/v1/api/produtos/filters/all?pageSize=${pageSize}&pageNumber=${pageNumber}&nome=${nome}&categoria=${categoria}`
         );
         return response.data || {};
     } catch (error) {
