@@ -16,13 +16,15 @@ const VerificarProdutos = () => {
   const [pageNumber, setPageNumber] = useState(0);
 
   const [filtroNome, setFiltroNome] = useState("");
-  const [filtroCategoria, setFiltroCategoria] = useState(null);
+  const [filtroCategoria, setFiltroCategoria] = useState("TODAS_AS_CATEGORIAS");
 
   const [loadingProdutos, setLoadingProdutos] = useState(true);
 
   // MODAL
   const [produtoSelecionado, setProdutoSelecionado] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const [inputNome, setInputNome] = useState("");
 
   const handleAbrirModal = (produto) => {
     setProdutoSelecionado(produto);
@@ -76,12 +78,12 @@ const VerificarProdutos = () => {
 
   // 🎯 FILTRAGEM POR NOME + CATEGORIA
   useEffect(() => {
-   
+
 
     fetchProdutos(filtroNome, filtroCategoria);
 
-    
-  }, [pageSize, pageNumber,filtroNome, filtroCategoria]);
+
+  }, [pageSize, pageNumber, filtroNome, filtroCategoria]);
 
 
 
@@ -98,6 +100,14 @@ const VerificarProdutos = () => {
       setPageNumber(pageNumber + 1);
     }
   };
+
+  useEffect(() => {
+    // Caso o usuário apague o texto → ativar filtro automático
+    if (inputNome.trim() === "") {
+      setFiltroNome("");   // remove filtro
+      setPageNumber(0);    // reset pagina
+    }
+  }, [inputNome]);
 
 
   return (
@@ -128,10 +138,12 @@ const VerificarProdutos = () => {
                 <input
                   type="text"
                   placeholder="Filtrar por nome..."
-                  value={filtroNome}
-                  onChange={(e) => {
-                    setFiltroNome(e.target.value)
-                    setPageNumber(0)
+                  value={inputNome}
+                  onChange={(e) => setInputNome(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      setFiltroNome(inputNome);
+                    }
                   }}
                   className="w-full rounded-md border p-2 pl-10"
                 />
@@ -140,15 +152,15 @@ const VerificarProdutos = () => {
 
               {/* FILTRO POR CATEGORIA */}
               <select
-                value={filtroCategoria || ""}
+                value={filtroCategoria}
                 onChange={(e) => {
-                  setFiltroCategoria(e.target.value || "")
+                  setFiltroCategoria(e.target.value)
                   setPageNumber(0)
 
                 }}
                 className="py-2 px-4 rounded-md bg-orange-500 text-white cursor-pointer"
               >
-                <option value="">Todas as categorias</option>
+                <option value="TODAS_AS_CATEGORIAS">Todas as categorias</option>
                 <option value="estocaveis">Estocáveis</option>
                 <option value="hortifruti">Hortifruti</option>
                 <option value="acougues">Açougues</option>
@@ -191,27 +203,30 @@ const VerificarProdutos = () => {
             </div>
 
             {/* PAGINAÇÃO */}
-            <div className="flex justify-between items-center pt-4">
-              <button
-                onClick={prevPage}
-                disabled={pageNumber === 0}
-                className="px-4 py-2 bg-gray-300 rounded disabled:opacity-40"
-              >
-                Anterior
-              </button>
+            {totalPages > 0 && (
+              <div className="flex justify-between items-center pt-4">
+                <button
+                  onClick={prevPage}
+                  disabled={pageNumber === 0}
+                  className="px-4 py-2 bg-gray-300 rounded disabled:opacity-40"
+                >
+                  Anterior
+                </button>
 
-              <span className="text-sm">
-                Página {pageNumber + 1} de {totalPages}
-              </span>
+                <span className="text-sm">
+                  Página {pageNumber + 1} de {totalPages}
+                </span>
 
-              <button
-                onClick={nextPage}
-                disabled={pageNumber >= totalPages - 1}
-                className="px-4 py-2 bg-gray-300 rounded disabled:opacity-40"
-              >
-                Próxima
-              </button>
-            </div>
+                <button
+                  onClick={nextPage}
+                  disabled={pageNumber >= totalPages - 1}
+                  className="px-4 py-2 bg-gray-300 rounded disabled:opacity-40"
+                >
+                  Próxima
+                </button>
+              </div>
+            )}
+
 
           </div>
         </div>
