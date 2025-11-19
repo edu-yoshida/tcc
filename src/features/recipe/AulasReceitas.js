@@ -3,16 +3,25 @@ import Sidebar from "../../shared/components/Sidebar";
 import RecipeModal from "./modais/RecipeModal";
 import AulaService from "../home/service/AulaService";
 
-// ⬇️ Import do modal igual na tela de fornecedor
+// Modal global
 import { useStatusModalStore } from "../../shared/store/modal-store";
 import StatusModal from "../../shared/components/StatusModal";
 
 // Ícone de remover
 const XIcon = ({ className = "w-5 h-5" }) => (
-  <svg xmlns="http://www.w3.org/2000/svg"
-    className={className} width="24" height="24" fill="none"
-    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M18 6 6 18" /><path d="m6 6 12 12" />
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    width="24"
+    height="24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M18 6 6 18" />
+    <path d="m6 6 12 12" />
   </svg>
 );
 
@@ -31,7 +40,7 @@ const AulasReceitas = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // ⬇️ Obtém funções do modal de status (igual na tela Fornecedor)
+  // Modal de status
   const { showLoading, showSuccess, showError } = useStatusModalStore();
 
   // Atualiza campos
@@ -48,7 +57,7 @@ const AulasReceitas = () => {
     }));
   };
 
-  // Remove uma receita específica
+  // Remove receita
   const handleRemoveReceita = (index) => {
     setFormState((prev) => {
       const copia = [...prev.receitasSelecionadas];
@@ -57,9 +66,56 @@ const AulasReceitas = () => {
     });
   };
 
-  // Envio
+  // ============================
+  // 🔍 VALIDAÇÃO DOS CAMPOS
+  // ============================
+  const validarFormulario = () => {
+    if (!formState.nome.trim())
+      return "O nome da aula é obrigatório.";
+
+    if (!formState.descricao.trim())
+      return "A descrição é obrigatória.";
+
+    if (!formState.data)
+      return "A data é obrigatória.";
+
+    const dataValida = !isNaN(new Date(formState.data).getTime());
+    if (!dataValida)
+      return "A data informada não é válida.";
+
+    if (!formState.instrutor.trim())
+      return "O nome do instrutor é obrigatório.";
+
+    if (!formState.materia.trim())
+      return "A matéria é obrigatória.";
+
+    if (!formState.semestre)
+      return "Selecione um semestre.";
+
+    if (!formState.modulo)
+      return "Selecione um módulo.";
+
+    if (!formState.periodo)
+      return "Selecione um período.";
+
+    if (formState.receitasSelecionadas.length === 0)
+      return "Selecione pelo menos uma receita.";
+
+    return null; // Sem erros
+  };
+
+  // ============================
+  // 🚀 SUBMIT
+  // ============================
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // 🔥 Executa validação
+    const erroValidacao = validarFormulario();
+    if (erroValidacao) {
+      showError(erroValidacao);
+      return;
+    }
 
     try {
       showLoading("Cadastrando aula...");
@@ -83,7 +139,7 @@ const AulasReceitas = () => {
 
       showSuccess("Aula cadastrada com sucesso!");
 
-      // limpa formulário
+      // Limpa formulário
       setFormState({
         nome: "",
         descricao: "",
@@ -96,9 +152,8 @@ const AulasReceitas = () => {
         receitasSelecionadas: [],
       });
     } catch (err) {
-      console.error("❌ Erro no cadastro da aula:", err);
+      console.error("❌ Erro no cadastro:", err);
 
-      // ❗ CAPTURA ERRO DO BACKEND (incluindo 'Estoque insuficiente...')
       const backendMsg =
         err?.response?.data?.message ||
         err?.response?.data?.error ||
@@ -118,16 +173,13 @@ const AulasReceitas = () => {
       <div className="flex-1 flex flex-col bg-orange-100 ml-64">
 
         {/* Topbar */}
-        <div className="h-28 shrink-0 bg-gradient-to-r from-orange-500 via-yellow-400 to-orange-600 flex flex-col items-center justify-center text-white rounded-b-3xl shadow-xl px-4">
-          <h2 className="text-2xl font-extrabold tracking-tight">
-            Cadastro de Aulas e Receitas
-          </h2>
-          <p className="text-sm mt-1 opacity-90">
-            Organize o currículo da sua escola com GastroFlow.
-          </p>
+        <div className="h-28 shrink-0 bg-gradient-to-r from-orange-500 via-yellow-400 to-orange-600
+                        flex flex-col items-center justify-center text-white rounded-b-3xl shadow-xl px-4">
+          <h2 className="text-2xl font-extrabold tracking-tight">Cadastro de Aulas e Receitas</h2>
+          <p className="text-sm mt-1 opacity-90">Organize o currículo da sua escola com GastroFlow.</p>
         </div>
 
-        {/* Formulário */}
+        {/* Form */}
         <div className="flex-1 flex items-start justify-center p-6 overflow-y-auto">
           <div className="w-full max-w-3xl bg-white rounded-xl shadow-2xl p-6 border border-orange-200">
 
@@ -141,7 +193,6 @@ const AulasReceitas = () => {
                   name="nome"
                   value={formState.nome}
                   onChange={handleChange}
-                  required
                   className="block w-full rounded-lg border-2 border-gray-300 p-3 shadow-inner focus:border-orange-500 transition"
                 />
               </div>
@@ -154,7 +205,6 @@ const AulasReceitas = () => {
                   name="descricao"
                   value={formState.descricao}
                   onChange={handleChange}
-                  required
                   className="block w-full rounded-lg border-2 border-gray-300 p-3 shadow-inner focus:border-orange-500 transition"
                 />
               </div>
@@ -184,7 +234,7 @@ const AulasReceitas = () => {
                 </div>
               </div>
 
-              {/* Matéria */}
+              {/* Matéria */}
               <div>
                 <label className="block text-sm font-semibold mb-2">Matéria</label>
                 <input
@@ -305,7 +355,7 @@ const AulasReceitas = () => {
         onAddReceitas={handleAddReceitas}
       />
 
-      {/* 🔥 Modal global de status */}
+      {/* Modal global */}
       <StatusModal />
     </div>
   );
