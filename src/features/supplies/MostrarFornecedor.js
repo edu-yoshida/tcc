@@ -1,98 +1,94 @@
 import React, { useState, useEffect } from "react";
 import { FaSearch } from "react-icons/fa";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
-import LogoGastroFlow from "../../assets/LogoGastroFlow.png";
-import ReceitaService from "../home/service/ReceitaService";
-import ListarReceitasModal from "./modais/ListarReceitasModal";
+import FornecedorService from "./Service/FornecedorService";
+import ListarFornModal from "./modais/ListarFornModal";
 
-const MostrarReceitas = () => {
-  const [receitas, setReceitas] = useState([]);
-  const [receitasFiltradas, setReceitasFiltradas] = useState([]);
+const MostrarFornecedores = () => {
+  const [fornecedores, setFornecedores] = useState([]);
+  const [fornecedoresFiltrados, setFornecedoresFiltrados] = useState([]);
   const [filtroNome, setFiltroNome] = useState("");
-  const [loadingReceitas, setLoadingReceitas] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   // Paginação
   const [paginaAtual, setPaginaAtual] = useState(1);
-  const receitasPorPagina = 10;
+  const fornecedoresPorPagina = 10;
 
-  // Modal (opcional)
-  const [receitaSelecionada, setReceitaSelecionada] = useState(null);
+  // Modal
+  const [fornecedorSelecionado, setFornecedorSelecionado] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const abrirModal = (receita) => {
-    setReceitaSelecionada(receita);
+  const abrirModal = (fornecedor) => {
+    setFornecedorSelecionado(fornecedor);
     setIsModalOpen(true);
   };
 
   const fecharModal = () => {
-    setReceitaSelecionada(null);
+    setFornecedorSelecionado(null);
     setIsModalOpen(false);
   };
 
-  // Buscar receitas
-  const fetchReceitas = async () => {
-    setLoadingReceitas(true);
+  // Buscar fornecedores
+  const fetchFornecedores = async () => {
+    setLoading(true);
     try {
-      const data = await ReceitaService.GetRecipes(); // ajuste o nome se necessário
-      setReceitas(data);
-      setReceitasFiltradas(data);
+      const data = await FornecedorService.GetFornecedores();
+      setFornecedores(data);
+      setFornecedoresFiltrados(data);
     } catch (err) {
-      console.error("Erro ao carregar receitas:", err);
+      console.error("Erro ao carregar fornecedores:", err);
     } finally {
-      setLoadingReceitas(false);
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchReceitas();
+    fetchFornecedores();
   }, []);
 
   // Filtro
   useEffect(() => {
-    const lista = receitas.filter((r) =>
-      r.nome && filtroNome
-        ? r.nome.toLowerCase().includes(filtroNome.toLowerCase())
+    const lista = fornecedores.filter((f) =>
+      f.nome && filtroNome
+        ? f.nome.toLowerCase().includes(filtroNome.toLowerCase())
         : true
     );
 
-    setReceitasFiltradas(lista);
+    setFornecedoresFiltrados(lista);
     setPaginaAtual(1);
-  }, [filtroNome, receitas]);
+  }, [filtroNome, fornecedores]);
 
   // Paginação
-  const indiceUltima = paginaAtual * receitasPorPagina;
-  const indicePrimeira = indiceUltima - receitasPorPagina;
-  const receitasDaPagina = receitasFiltradas.slice(indicePrimeira, indiceUltima);
-  const totalPaginas = Math.ceil(receitasFiltradas.length / receitasPorPagina);
+  const indiceUltima = paginaAtual * fornecedoresPorPagina;
+  const indicePrimeira = indiceUltima - fornecedoresPorPagina;
+  const fornecedoresDaPagina = fornecedoresFiltrados.slice(indicePrimeira, indiceUltima);
+  const totalPaginas = Math.ceil(fornecedoresFiltrados.length / fornecedoresPorPagina);
 
-  const paginaAnterior = () =>
-    setPaginaAtual((prev) => Math.max(prev - 1, 1));
-
+  const paginaAnterior = () => setPaginaAtual((prev) => Math.max(prev - 1, 1));
   const proximaPagina = () =>
     setPaginaAtual((prev) => Math.min(prev + 1, totalPaginas));
 
   return (
     <div className="flex w-screen h-screen overflow-hidden bg-orange-100 text-gray-800 font-sans">
-
       {/* Conteúdo */}
       <div className="flex-1 flex flex-col min-w-0 ml-64">
         {/* Header */}
-        <div className="h-28 shrink-0 bg-gradient-to-r from-orange-400 via-yellow-500 to-orange-600 flex flex-col items-center justify-center text-white rounded-b-3xl overflow-hidden">
-          <h2 className="text-2xl font-bold">Receitas Cadastradas</h2>
+        <div className=" h-28 shrink-0 bg-gradient-to-r from-orange-400 via-yellow-500 to-orange-600 flex flex-col items-center justify-center text-white rounded-b-3xl overflow-hidden">
+          <h2 className="text-2xl font-bold">Fornecedores Cadastrados</h2>
         </div>
 
         {/* Caixa principal */}
-        <div className="flex-1 flex p-6 bg-orange-100 items-center justify-center overflow-auto">
+        <div className="flex-1 flex p-6 bg-orange-100 items-center justify-center overflow-auto ">
           <div className="w-full max-w-3xl bg-white rounded-lg shadow-md p-6 flex flex-col space-y-4">
 
-            <h3 className="text-xl font-semibold text-gray-800">Minhas Receitas</h3>
+            <h3 className="text-xl font-semibold text-gray-800">Meus Fornecedores</h3>
 
             {/* FILTRO */}
             <div className="flex space-x-3 items-center">
               <div className="relative flex-1">
                 <input
                   type="text"
-                  placeholder="Filtrar por nome da receita..."
+                  placeholder="Filtrar por nome do fornecedor..."
                   value={filtroNome}
                   onChange={(e) => setFiltroNome(e.target.value)}
                   className="block w-full rounded-md border border-gray-300 focus:border-orange-500 p-2 pl-10 text-sm"
@@ -103,31 +99,34 @@ const MostrarReceitas = () => {
 
             {/* TABELA */}
             <div className="overflow-x-auto border border-gray-200 rounded-md flex-1">
-              {loadingReceitas ? (
-                <div className="p-4 text-center text-gray-500">Carregando receitas...</div>
-              ) : receitasFiltradas.length > 0 ? (
+              {loading ? (
+                <div className="p-4 text-center text-gray-500">
+                  Carregando fornecedores...
+                </div>
+              ) : fornecedoresFiltrados.length > 0 ? (
                 <>
                   <table className="w-full text-sm border">
                     <thead className="bg-gray-100">
                       <tr>
                         <th className="px-4 py-2 text-left">Nome</th>
-                        <th className="px-4 py-2 text-left">Tipo</th>
-                        <th className="px-4 py-2 text-left">Rendimento</th>
-                        <th className="px-4 py-2 text-left">Professor</th>
+                        
+                        
+                        <th className="px-4 py-2 text-left">Email</th>
+                        
                       </tr>
                     </thead>
 
                     <tbody>
-                      {receitasDaPagina.map((receita) => (
+                      {fornecedoresDaPagina.map((fornecedor) => (
                         <tr
-                          key={receita.id}
+                          key={fornecedor.id}
                           className="hover:bg-[#fff5e6] cursor-pointer transition"
-                          onClick={() => abrirModal(receita)}
+                          onClick={() => abrirModal(fornecedor)}
                         >
-                          <td className="px-4 py-2">{receita.nome}</td>
-                          <td className="px-4 py-2">{receita.tipo ?? "-"}</td>
-                          <td className="px-4 py-2">{receita.rendimento ?? "-"}</td>
-                          <td className="px-4 py-2">{receita.professorReceita ?? "-"}</td>
+                          <td className="px-4 py-2">{fornecedor.nomeFantasia}</td>
+                          
+                          <td className="px-4 py-2">{fornecedor.email ?? "-"}</td>
+                          
                         </tr>
                       ))}
                     </tbody>
@@ -160,35 +159,27 @@ const MostrarReceitas = () => {
                 </>
               ) : (
                 <div className="p-4 text-center text-gray-500">
-                  {receitas.length === 0
-                    ? "Nenhuma receita cadastrada."
-                    : "Nenhuma receita corresponde ao filtro."}
+                  {fornecedores.length === 0
+                    ? "Nenhum fornecedor cadastrado."
+                    : "Nenhum fornecedor corresponde ao filtro."}
                 </div>
               )}
             </div>
           </div>
         </div>
 
-        {/* Logo */}
-        <div className="hidden md:flex items-center justify-center rounded-2xl p-6">
-          <img
-            src={LogoGastroFlow}
-            alt="Logo"
-            className="hidden md:block absolute right-10 bottom-10 w-40 opacity-80"
-          />
-        </div>
       </div>
 
-      {receitaSelecionada && (
-        <ListarReceitasModal
+      {/* Modal */}
+      {fornecedorSelecionado && (
+        <ListarFornModal
           isOpen={isModalOpen}
           onClose={fecharModal}
-          receitaSelecionada={receitaSelecionada}
+          fornecedorSelecionado={fornecedorSelecionado}
         />
       )}
-     
     </div>
   );
 };
 
-export default MostrarReceitas;
+export default MostrarFornecedores;

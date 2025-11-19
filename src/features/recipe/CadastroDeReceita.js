@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Sidebar from "../../shared/components/Sidebar";
 import ReceitaService from "../home/service/ReceitaService";
 import { FaPlusCircle, FaTrashAlt } from "react-icons/fa";
-import IngredientsModal from "../../shared/components/IngredientsModal";
+import IngredientsModal from "./modais/IngredientsModal";
 
 // === MODAL GLOBAL ===
 import { useStatusModalStore } from "../../shared/store/modal-store";
@@ -119,9 +119,6 @@ const CadastroDeReceita = () => {
 
   return (
     <div className="flex w-screen h-screen overflow-hidden bg-orange-100 text-gray-800 font-sans">
-
-      <Sidebar />
-
       <div className="flex-1 min-w-0 flex flex-col ml-64">
         <div className="h-28 bg-gradient-to-r from-orange-400 via-yellow-500 to-orange-600 
                         flex flex-col items-center justify-center text-white rounded-b-3xl shadow-lg">
@@ -165,28 +162,34 @@ const CadastroDeReceita = () => {
 
                 {formState.produtos.length > 0 && (
                   <div className="mt-4 border rounded-xl p-4 bg-gray-50">
+
                     <h3 className="text-lg font-semibold mb-2">Selecionados</h3>
 
-                    <ul className="divide-y">
-                      {formState.produtos.map((item, index) => (
-                        <li key={index} className="flex justify-between py-2">
-                          <div>
-                            <span className="font-bold">{item.nomeProduto}</span>
-                            <p className="text-xs text-gray-600">
-                              Categoria: {item.categoria} | Quantidade: {item.quantidade}
-                            </p>
-                          </div>
+                    {/* LISTA COM SCROLL */}
+                    <div className="max-h-56 overflow-y-auto pr-2">
 
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveIngredient(index)}
-                            className="text-red-600 hover:text-red-800"
-                          >
-                            <FaTrashAlt />
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
+                      <ul className="divide-y">
+                        {formState.produtos.map((item, index) => (
+                          <li key={index} className="flex justify-between py-2">
+                            <div>
+                              <span className="font-bold">{item.nomeProduto}</span>
+                              <p className="text-xs text-gray-600">
+                                Categoria: {item.categoria} | Quantidade: {item.quantidade}
+                              </p>
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveIngredient(index)}
+                              className="text-red-600 hover:text-red-800"
+                            >
+                              <FaTrashAlt />
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+
+                    </div>
                   </div>
                 )}
               </div>

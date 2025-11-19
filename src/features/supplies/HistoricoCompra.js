@@ -4,7 +4,7 @@ import CompraService from "./Service/CompraService";
 import ProdutoService from "../home/service/ProdutoService";
 import FornecedorService from "./Service/FornecedorService";
 
-import CompraDetalhesModal from "../../shared/components/CompraDetalhesModal.js";
+import CompraDetalhesModal from "./modais/CompraDetalhesModal.js";
 
 const HistoricoCompras = () => {
   const [entradas, setEntradas] = useState([]);
@@ -121,7 +121,7 @@ const HistoricoCompras = () => {
 
       <div className="flex-1 min-w-0 flex flex-col">
         <div className="h-28 bg-gradient-to-r from-orange-400 via-yellow-500 to-orange-600 flex flex-col items-center justify-center text-white rounded-b-3xl">
-          <h2 className="text-lg font-bold">Histórico de Compras</h2>
+          <h2 className="text-2xl font-bold">Histórico de Compras</h2>
         </div>
 
         <div className="flex-1 flex p-6 items-center justify-center overflow-auto">

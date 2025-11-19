@@ -1,10 +1,8 @@
 import React, { useState } from "react";
 import LogoGastroFlow from "../../../assets/LogoGastroFlow.png";
-import Sidebar from "../../../shared/components/Sidebar";
 import ProdutoService from "../service/ProdutoService";
 
 import { useStatusModalStore } from "../../../shared/store/modal-store";
-import StatusModal from "../../../shared/components/StatusModal";
 
 const CadastroDeProdutos = () => {
   const [formState, setFormState] = useState({
@@ -65,7 +63,7 @@ const CadastroDeProdutos = () => {
   return (
     <div className="flex w-screen h-screen overflow-hidden bg-[#ffffff] text-gray-800 font-sans">
 
-      <Sidebar />
+      
 
       <div className="flex-1 min-w-0 flex flex-col overflow-hidden bg-orange-100 ml-64">
 

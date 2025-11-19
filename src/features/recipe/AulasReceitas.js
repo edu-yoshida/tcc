@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Sidebar from "../../shared/components/Sidebar";
-import RecipeModal from "../../shared/components/RecipeModal";
+import RecipeModal from "./modais/RecipeModal";
 import AulaService from "../home/service/AulaService";
 
 // ⬇️ Import do modal igual na tela de fornecedor

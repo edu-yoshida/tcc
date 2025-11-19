@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import ReceitaService from "../../features/home/service/ReceitaService";
+import ReceitaService from "../../home/service/ReceitaService";
 
 const RecipeModal = ({ isOpen, onClose, onAddReceitas }) => {
   const [receitas, setReceitas] = useState([]);

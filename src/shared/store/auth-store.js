@@ -23,14 +23,13 @@ const useAuthStore = create((set) => ({
 
       const data = response.data;
 
-      // 🔥 Normalização: ajustar campos ao formato usado no Header
       const normalized = {
         nome: data.nome || "",
         email: data.email || "",
         cnpj: data.cnpj || "",
         cpf: data.cpf || "",
         tipo: data.tipo || "",
-        avatarUrl: data.picture || null, // picture → avatarUrl
+        picture: data.picture || null, // <- AGORA CASA COM O HEADER
       };
 
       set({ user: normalized });

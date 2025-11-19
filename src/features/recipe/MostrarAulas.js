@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { FaSearch } from "react-icons/fa";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
-import Sidebar from "../../shared/components/Sidebar";
-import LogoGastroFlow from "../../assets/LogoGastroFlow.png";
 import AulaService from "../home/service/AulaService";
-import AulaModal from "../../shared/components/Aulamodal";
+import AulaModal from "./modais/Aulamodal";
 
 const MostrarAulas = () => {
   const [aulas, setAulas] = useState([]);
@@ -77,16 +75,11 @@ const MostrarAulas = () => {
 
   return (
     <div className="flex w-screen h-screen overflow-hidden bg-orange-100 text-gray-800 font-sans">
-      <aside className="w-64 shrink-0">
-        <div className="h-full overflow-y-auto">
-          <Sidebar />
-        </div>
-      </aside>
 
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 ml-64">
         {/* HEADER */}
         <div className="h-28 shrink-0 bg-gradient-to-r from-orange-400 via-yellow-500 to-orange-600 flex flex-col items-center justify-center text-white rounded-b-3xl overflow-hidden">
-          <h2 className="text-lg font-bold">Aulas Cadastradas</h2>
+          <h2 className="text-2xl font-bold">Aulas Cadastradas</h2>
         </div>
 
         {/* CONTEÚDO */}
@@ -183,15 +176,6 @@ const MostrarAulas = () => {
               )}
             </div>
           </div>
-        </div>
-
-        {/* LOGO */}
-        <div className="hidden md:flex items-center justify-center rounded-2xl p-6">
-          <img
-            src={LogoGastroFlow}
-            alt="Logo"
-            className="hidden md:block absolute right-10 bottom-10 w-40 opacity-80"
-          />
         </div>
       </div>
 
