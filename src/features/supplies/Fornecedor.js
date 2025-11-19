@@ -1,10 +1,8 @@
 import React, { useState } from "react";
-import Sidebar from "../../shared/components/Sidebar";
 import LogoGastroFlow from "../../assets/LogoGastroFlow.png";
 import FornecedorService from "./Service/FornecedorService";
 
 import { useStatusModalStore } from "../../shared/store/modal-store";
-import StatusModal from "../../shared/components/StatusModal";
 
 const Fornecedor = () => {
   const [formState, setFormState] = useState({
@@ -184,9 +182,6 @@ const Fornecedor = () => {
           </div>
         </div>
       </div>
-
-      {/* 🔥 MODAL DE STATUS */}
-      <StatusModal />
     </div>
   );
 };

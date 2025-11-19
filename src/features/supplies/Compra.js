@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import LogoGastroFlow from "../../assets/LogoGastroFlow.png";
 import { FaPlusCircle, FaTrashAlt } from "react-icons/fa";
-import StockModal from "../../shared/components/StockModal";
-import FornecedorModal from "../../shared/components/FornecedorModal";
+import StockModal from "./modais/CompraProdModal";
+import FornecedorModal from "./modais/FornecedorModal";
 import api from "../../shared/utils/api";
 
+
 import { useStatusModalStore } from "../../shared/store/modal-store";
-import StatusModal from "../../shared/components/StatusModal";
+
 
 const CadastroCompra = () => {
   const [formState, setFormState] = useState({
@@ -132,7 +133,7 @@ const CadastroCompra = () => {
                     name="observacao"
                     value={formState.observacao}
                     onChange={handleChange}
-                    className="block w-full rounded-lg border p-2 text-sm"
+                    className="block w-full rounded-lg border p-2 text-sm resize-none"
                   />
                 </div>
 
@@ -165,7 +166,7 @@ const CadastroCompra = () => {
                     <ul
                       className="
                         divide-y border rounded-md p-3 bg-gray-50
-                        h-44 overflow-y-auto
+                        max-h-44 overflow-y-auto
                         scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200
                       "
                     >

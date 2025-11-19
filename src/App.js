@@ -89,11 +89,8 @@ function App() {
           </Routes>
         </Router>
       )}
-
-      {/* TOASTS */}
       <Toaster />
 
-      {/* 🔥 MODAL GLOBAL — AGORA FUNCIONA EM QUALQUER PÁGINA */}
       <StatusModal />
     </>
   );

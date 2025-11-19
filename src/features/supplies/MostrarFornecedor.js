@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { FaSearch } from "react-icons/fa";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
-import Sidebar from "../../shared/components/Sidebar";
-import LogoGastroFlow from "../../assets/LogoGastroFlow.png";
 import FornecedorService from "./Service/FornecedorService";
-import ListarFornModal from "../../shared/components/ListarFornModal";
+import ListarFornModal from "./modais/ListarFornModal";
 
 const MostrarFornecedores = () => {
   const [fornecedores, setFornecedores] = useState([]);
@@ -72,22 +70,15 @@ const MostrarFornecedores = () => {
 
   return (
     <div className="flex w-screen h-screen overflow-hidden bg-orange-100 text-gray-800 font-sans">
-      {/* Sidebar */}
-      <aside className="w-64 shrink-0">
-        <div className="h-full overflow-y-auto">
-          <Sidebar />
-        </div>
-      </aside>
-
       {/* Conteúdo */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 ml-64">
         {/* Header */}
-        <div className="h-28 shrink-0 bg-gradient-to-r from-orange-400 via-yellow-500 to-orange-600 flex flex-col items-center justify-center text-white rounded-b-3xl overflow-hidden">
-          <h2 className="text-lg font-bold">Fornecedores Cadastrados</h2>
+        <div className=" h-28 shrink-0 bg-gradient-to-r from-orange-400 via-yellow-500 to-orange-600 flex flex-col items-center justify-center text-white rounded-b-3xl overflow-hidden">
+          <h2 className="text-2xl font-bold">Fornecedores Cadastrados</h2>
         </div>
 
         {/* Caixa principal */}
-        <div className="flex-1 flex p-6 bg-orange-100 items-center justify-center overflow-auto">
+        <div className="flex-1 flex p-6 bg-orange-100 items-center justify-center overflow-auto ">
           <div className="w-full max-w-3xl bg-white rounded-lg shadow-md p-6 flex flex-col space-y-4">
 
             <h3 className="text-xl font-semibold text-gray-800">Meus Fornecedores</h3>

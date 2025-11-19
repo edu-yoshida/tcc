@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { FaSearch } from "react-icons/fa";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
-import Sidebar from "../../shared/components/Sidebar";
 import LogoGastroFlow from "../../assets/LogoGastroFlow.png";
 import ReceitaService from "../home/service/ReceitaService";
-import ListarReceitasModal from "../../shared/components/ListarReceitasModal";
+import ListarReceitasModal from "./modais/ListarReceitasModal";
 
 const MostrarReceitas = () => {
   const [receitas, setReceitas] = useState([]);
@@ -74,18 +73,12 @@ const MostrarReceitas = () => {
 
   return (
     <div className="flex w-screen h-screen overflow-hidden bg-orange-100 text-gray-800 font-sans">
-      {/* Sidebar */}
-      <aside className="w-64 shrink-0">
-        <div className="h-full overflow-y-auto">
-          <Sidebar />
-        </div>
-      </aside>
 
       {/* Conteúdo */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 ml-64">
         {/* Header */}
         <div className="h-28 shrink-0 bg-gradient-to-r from-orange-400 via-yellow-500 to-orange-600 flex flex-col items-center justify-center text-white rounded-b-3xl overflow-hidden">
-          <h2 className="text-lg font-bold">Receitas Cadastradas</h2>
+          <h2 className="text-2xl font-bold">Receitas Cadastradas</h2>
         </div>
 
         {/* Caixa principal */}

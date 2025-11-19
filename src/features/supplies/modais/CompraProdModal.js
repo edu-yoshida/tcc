@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import ProdutoService from "../../features/home/service/ProdutoService";
-import { useStatusModalStore } from "../store/modal-store";
+import ProdutoService from "../../home/service/ProdutoService";
+import { useStatusModalStore } from "../../../shared/store/modal-store";
 
-const StockModal = ({ isOpen, onClose, onAddIngredients }) => {
+const CompraProdModal = ({ isOpen, onClose, onAddIngredients }) => {
   const [produtos, setProdutos] = useState([]);
   const [valores, setValores] = useState({});
   const [quantidades, setQuantidades] = useState({});
@@ -123,6 +123,7 @@ const StockModal = ({ isOpen, onClose, onAddIngredients }) => {
                         onChange={(e) =>
                           handleQuantidadeChange(produto.id, e.target.value)
                         }
+                        placeholder="0"
                         className="w-20 border rounded-md p-1 text-center"
                       />
                     </td>
@@ -135,6 +136,7 @@ const StockModal = ({ isOpen, onClose, onAddIngredients }) => {
                         onChange={(e) =>
                           handleValorChange(produto.id, e.target.value)
                         }
+                        placeholder="0.00"
                         className="w-24 border rounded-md p-1 text-center"
                       />
                     </td>
@@ -172,4 +174,4 @@ const StockModal = ({ isOpen, onClose, onAddIngredients }) => {
   );
 };
 
-export default StockModal;
+export default CompraProdModal;
