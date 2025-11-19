@@ -14,6 +14,9 @@ import Fornecedor from "./features/supplies/Fornecedor";
 import HistoricoCompra from "./features/supplies/HistoricoCompra";
 import PrivateLayout from "./shared/components/PrivateLayout";
 
+import MostrarAulas from "./features/recipe/MostrarAulas";
+import MostrarReceitas from "./features/recipe/MostrarReceitas";
+import MostrarFornecedores from "./features/supplies/MostrarFornecedor";
 
 
 import { Toaster } from "react-hot-toast";
@@ -23,10 +26,9 @@ import useAuthStore from "./shared/store/auth-store";
 import PublicRoute from "./shared/components/PublicRoute";
 import PrivateRoute from "./shared/components/PrivateRoute";
 
-// 🔥 NOVO: Importa o modal global
+
 import StatusModal from "./shared/components/StatusModal";
-import MostrarAulas from "./features/recipe/MostrarAulas";
-import MostrarReceitas from "./features/recipe/MostrarReceitas";
+
 
 function App() {
   const [showSplash, setShowSplash] = useState(true);
@@ -80,17 +82,15 @@ function App() {
               <Route path="/mostrarAulas" element={<MostrarAulas />} />
               <Route path="/compra" element={<CadastroCompra />} />
               <Route path="/fornecedor" element={<Fornecedor />} />
+              <Route path="/mostrarFornecedor" element={<MostrarFornecedores />} />
               <Route path="/historicoCompra" element={<HistoricoCompra />} />
               
             </Route>
           </Routes>
         </Router>
       )}
-
-      {/* TOASTS */}
       <Toaster />
 
-      {/* 🔥 MODAL GLOBAL — AGORA FUNCIONA EM QUALQUER PÁGINA */}
       <StatusModal />
     </>
   );

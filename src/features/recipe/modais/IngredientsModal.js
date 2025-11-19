@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import ProdutoService from "../../features/home/service/ProdutoService";
+import ProdutoService from "../../home/service/ProdutoService";
 
 const IngredientsModal = ({ isOpen, onClose, onAddIngredients }) => {
   const [produtos, setProdutos] = useState([]);

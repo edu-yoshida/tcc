@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { FaSearch } from "react-icons/fa";
-import Sidebar from "../../shared/components/Sidebar";
+
 import ProdutoService from "../home/service/ProdutoService";
-import EstoqueModal from "./EstoqueModal";
-import LogoGastroFlow from "../../assets/LogoGastroFlow.png";
+import EstoqueModal from "./modais/EstoqueModal";
+
 
 const VerificarProdutos = () => {
   const [produtos, setProdutos] = useState([]);
@@ -112,16 +112,11 @@ const VerificarProdutos = () => {
 
   return (
     <div className="flex w-screen h-screen overflow-hidden bg-orange-100 text-gray-800 font-sans">
-
-      <aside className="w-64 shrink-0">
-        <Sidebar />
-      </aside>
-
-      <div className="flex-1 min-w-0 flex flex-col">
+      <div className="flex-1 min-w-0 flex flex-col ml-64">
 
         {/* HEADER */}
         <div className="h-28 bg-gradient-to-r from-orange-400 via-yellow-500 to-orange-600 flex items-center justify-center text-white rounded-b-3xl">
-          <h2 className="text-lg font-bold">Listar Estoque</h2>
+          <h2 className="text-2xl font-bold">Listar Estoque</h2>
         </div>
 
         {/* CONTEÚDO */}
@@ -233,12 +228,7 @@ const VerificarProdutos = () => {
 
       </div>
 
-      {/* LOGO */}
-      <img
-        src={LogoGastroFlow}
-        alt="Logo"
-        className="hidden md:block absolute right-10 bottom-10 w-40 opacity-80"
-      />
+      
 
       {/* MODAL */}
       {produtoSelecionado && (

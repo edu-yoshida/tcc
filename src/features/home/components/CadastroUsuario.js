@@ -3,9 +3,15 @@ import LogoGastroFlow from "../../../assets/LogoGastroFlow.png";
 import { useNavigate } from "react-router-dom";
 import LoginService from '../service/LoginService';
 
-const CadastroUsuario = () => {
+
+import { useStatusModalStore } from "../../../shared/store/modal-store";
+
+
+export default function CadastroUsuario() {
 
     const navigate = useNavigate();
+
+    const { showLoading, showSuccess, showError } = useStatusModalStore();
 
     const [form, setForm] = React.useState({
         usuario: '',
@@ -50,35 +56,49 @@ const CadastroUsuario = () => {
         }
 
         try {
-            const data = await LoginService.registerUser({
+            showLoading("Criando conta...");
+
+            await LoginService.registerUser({
                 name: form.usuario,
                 email: form.email,
                 password: form.senha,
                 picture: null
             });
-            console.log(data);
-            setForm({ usuario: '', email: '', senha: '', confirmarSenha: ''});
-            navigate("/")
+
+            showSuccess("Usuário cadastrado com sucesso!");
+
+            setForm({ usuario: '', email: '', senha: '', confirmarSenha: '' });
+
+            setTimeout(() => navigate("/"), 1200);
+
         } catch (err) {
             console.log(err);
-            setError("Erro ao cadastrar usuário.");
+
+            if (err.response?.status === 409) {
+                showError("Este e-mail já está cadastrado!");
+            } else {
+                showError("Erro ao cadastrar usuário.");
+            }
         }
     };
 
     return (
         <div className="flex justify-center items-center min-h-screen 
                     bg-gradient-to-br from-orange-500/80 via-yellow-500/70 to-orange-600/80">
-            <section className="flex justify-center items-center mb-4">
-                <img
-                    src={LogoGastroFlow}
-                    alt="Logo GastroFlow"
-                    className="w-4/4 max-w-lg h-auto p-4"
-                />
-            </section>
-            <div className="w-full max-w-md p-8 rounded-2xl bg-white shadow-2xl">
-                <form onSubmit={sendData} className="flex flex-col gap-5">
 
-                    {error && <p className="text-red-600 text-center font-semibold">{error}</p>}
+            <div className="w-full max-w-md p-8 rounded-2xl bg-white shadow-2xl">
+                
+                <section className="flex justify-center items-center mb-4">
+                    <img
+                        src={LogoGastroFlow}
+                        alt="Logo GastroFlow"
+                        className="w-4/4 max-w-lg h-auto p-4"
+                    />
+                </section>
+
+                {error && <p className="text-red-600 text-center font-semibold">{error}</p>}
+
+                <form onSubmit={sendData} className="flex flex-col gap-5">
 
                     <input
                         id="usuario"
@@ -88,7 +108,7 @@ const CadastroUsuario = () => {
                         onChange={handleForm}
                         placeholder="Usuário"
                         className="p-3 rounded-xl border-2 border-orange-300 outline-none transition
-                       focus:ring-2 focus:ring-orange-500"
+                        focus:ring-2 focus:ring-orange-500"
                     />
 
                     <input
@@ -99,7 +119,7 @@ const CadastroUsuario = () => {
                         onChange={handleForm}
                         placeholder="Email"
                         className="p-3 rounded-xl border-2 border-orange-300 outline-none transition
-                       focus:ring-2 focus:ring-orange-500"
+                        focus:ring-2 focus:ring-orange-500"
                     />
 
                     <input
@@ -110,7 +130,7 @@ const CadastroUsuario = () => {
                         onChange={handleForm}
                         placeholder="Senha"
                         className="p-3 rounded-xl border-2 border-orange-300 outline-none transition
-                       focus:ring-2 focus:ring-orange-500"
+                        focus:ring-2 focus:ring-orange-500"
                     />
 
                     <input
@@ -121,32 +141,32 @@ const CadastroUsuario = () => {
                         onChange={handleForm}
                         placeholder="Confirmar Senha"
                         className="p-3 rounded-xl border-2 border-orange-300 outline-none transition
-                       focus:ring-2 focus:ring-orange-500"
+                        focus:ring-2 focus:ring-orange-500"
                     />
 
                     <button
                         type="submit"
                         className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 rounded-xl
-                       shadow-lg transition transform hover:-translate-y-0.5 active:translate-y-0"
+                        shadow-lg transition transform hover:-translate-y-0.5 active:translate-y-0"
                     >
                         Cadastrar
                     </button>
                 </form>
+
                 <div className="flex items-center gap-2 my-6">
                     <hr className="flex-1 border-gray-300" />
                     <span className="text-gray-500 text-sm">ou</span>
                     <hr className="flex-1 border-gray-300" />
                 </div>
+
                 <button
                     onClick={() => navigate("/")}
                     className="block mx-auto mt-6 text-orange-600 font-bold cursor-pointer 
-                               hover:text-orange-500 hover:underline"
+                    hover:text-orange-500 hover:underline"
                 >
                     Já possui cadastro? Clique aqui
                 </button>
             </div>
         </div>
     );
-};
-
-export default CadastroUsuario;
+}
