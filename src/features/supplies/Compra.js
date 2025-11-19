@@ -60,8 +60,14 @@ const CadastroCompra = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formState.fornecedorId || formState.produtos.length === 0) {
-      showError("Selecione um fornecedor e adicione pelo menos um produto.");
+    if (!formState.fornecedorId) {
+      showError("Selecione um fornecedor .");
+      return;
+    }else if (formState.produtos.length === 0) {
+      showError("Adicione pelo menos um produto.");
+      return;
+    }else if (!formState.dataEntrada) {
+      showError("Selecione a data");
       return;
     }
 
