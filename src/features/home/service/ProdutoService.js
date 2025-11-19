@@ -43,7 +43,7 @@ async function GetProductById(id) {
 }
 
 // Paginação
-async function GetProductsPages(pageSize = 5, pageNumber = 0) {
+async function GetProductsPages(pageSize = 5, pageNumber = 0, nome, categoria) {
     try {
         const response = await api.get(
             `/v1/api/produtos/filters/all?pageSize=${pageSize}&pageNumber=${pageNumber}&nome=${nome}&categoria=${categoria}`

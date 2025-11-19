@@ -233,12 +233,7 @@ const VerificarProdutos = () => {
 
       </div>
 
-      {/* LOGO */}
-      <img
-        src={LogoGastroFlow}
-        alt="Logo"
-        className="hidden md:block absolute right-10 bottom-10 w-40 opacity-80"
-      />
+      
 
       {/* MODAL */}
       {produtoSelecionado && (
