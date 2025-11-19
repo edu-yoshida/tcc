@@ -45,9 +45,29 @@ async function GetProducts() {
     }
 }
 
+async function UpdateProduct({ id, nome, unidadeMedida, categoria, quantidadeEstoque }) {
+    if (!id) {
+        console.error("Erro: ID do produto é obrigatório.");
+        throw new Error("ID do produto não informado.");
+    }
+
+    try {
+        const response = await api.patch(`/v1/api/produtos?id=${id}`, {
+            nome,
+            unidadeMedida,
+            categoria,
+            quantidadeEstoque
+        });
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
 export default {
     RegisterProduct,
     UpdateProductStock,
     GetProducts,
-    GetProductsPages
+    GetProductsPages,
+    UpdateProduct
 };

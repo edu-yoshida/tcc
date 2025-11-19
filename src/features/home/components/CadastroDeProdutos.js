@@ -183,9 +183,6 @@ const CadastroDeProdutos = () => {
           </div>
         </div>
       </div>
-
-      {/* STATUS MODAL */}
-
     </div>
   );
 };

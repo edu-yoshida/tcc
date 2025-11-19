@@ -246,6 +246,7 @@ const VerificarProdutos = () => {
           isOpen={isModalOpen}
           onClose={handleFecharModal}
           produtoSelecionado={produtoSelecionado}
+          onUpdated={() => fetchProdutos(filtroNome, filtroCategoria)}
         />
       )}
     </div>
