@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import ProdutoService from "../../home/service/ProdutoService";
+import { FiX } from "react-icons/fi";
 import { FaTimes } from "react-icons/fa";
 import { useStatusModalStore } from "../../../shared/store/modal-store";
 
