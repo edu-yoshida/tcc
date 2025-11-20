@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import LogoGastroFlow from "../../assets/LogoGastroFlow.png";
-import FornecedorService from "./Service/FornecedorService";
+import FornecedorService from "./service/FornecedorService";
 
 import { useStatusModalStore } from "../../shared/store/modal-store";
 

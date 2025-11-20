@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Sidebar from "../../shared/components/Sidebar";
 import RecipeModal from "./modais/RecipeModal";
-import AulaService from "../home/service/AulaService";
+import AulaService from "./service/AulaService";
 
 // ⬇️ Import do modal igual na tela de fornecedor
 import { useStatusModalStore } from "../../shared/store/modal-store";

@@ -44,10 +44,22 @@ async function getEntradasByProdutoId(produtoId) {
     throw error;
   }
 }
+async function UpdateEntrada(id, payload) {
+    try {
+        const response = await api.patch(`/v1/api/entradas`, payload, {
+            params: { id }
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Erro ao atualizar entrada:", error);
+        throw error;
+    }
+}
 
 export default {
   cadastrarEntrada,
   getAllEntradas,
   getEntradaById,
-  getEntradasByProdutoId
+  getEntradasByProdutoId,
+  UpdateEntrada
 };
