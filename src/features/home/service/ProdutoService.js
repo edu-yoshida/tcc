@@ -83,11 +83,24 @@ async function UpdateProduct({ id, nome, unidadeMedida, categoria, quantidadeEst
     }
 }
 
+//CSV 
+async function UploadCSV({formData}) {
+    try {
+        const response = await api.post("/v1/api/produtos/csv", {
+            formData
+        });
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
 export default {
     RegisterProduct,
     UpdateProductStock,
     GetProductById,
     GetProducts,
     GetProductsPages,
-    UpdateProduct
+    UpdateProduct,
+    UploadCSV
 };

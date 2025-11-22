@@ -28,6 +28,7 @@ import PrivateRoute from "./shared/components/PrivateRoute";
 
 
 import StatusModal from "./shared/components/StatusModal";
+import UploadCSV from "./features/supplies/UploadCSV";
 
 
 function App() {
@@ -84,6 +85,7 @@ function App() {
               <Route path="/fornecedor" element={<Fornecedor />} />
               <Route path="/mostrarFornecedor" element={<MostrarFornecedores />} />
               <Route path="/historicoCompra" element={<HistoricoCompra />} />
+              <Route path="/EnviarCSV" element={<UploadCSV />} />
               
             </Route>
           </Routes>

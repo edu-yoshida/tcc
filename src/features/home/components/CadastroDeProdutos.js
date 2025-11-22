@@ -3,8 +3,12 @@ import LogoGastroFlow from "../../../assets/LogoGastroFlow.png";
 import ProdutoService from "../service/ProdutoService";
 
 import { useStatusModalStore } from "../../../shared/store/modal-store";
+import { useNavigate } from "react-router-dom";
 
 const CadastroDeProdutos = () => {
+
+  const navigate = useNavigate();
+
   const [formState, setFormState] = useState({
     nome: "",
     unidadeMedida: "",
@@ -63,7 +67,7 @@ const CadastroDeProdutos = () => {
   return (
     <div className="flex w-screen h-screen overflow-hidden bg-[#ffffff] text-gray-800 font-sans">
 
-      
+
 
       <div className="flex-1 min-w-0 flex flex-col overflow-hidden bg-orange-100 ml-64">
 
@@ -104,7 +108,7 @@ const CadastroDeProdutos = () => {
 
                 {/* Unidade + Categoria */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Unidade de Medida
@@ -167,6 +171,22 @@ const CadastroDeProdutos = () => {
                 </div>
 
               </form>
+              <div className="flex items-center my-4">
+                <div className="flex-1 h-px bg-gray-300"></div>
+                <span className="px-3 text-gray-500 text-sm">ou</span>
+                <div className="flex-1 h-px bg-gray-300"></div>
+              </div>
+
+              {/* Link para página de upload CSV */}
+              <div className="text-center">
+                <button
+                  type="button"
+                  onClick={() => navigate("/EnviarCSV")}
+                  className="text-orange-600 font-medium hover:underline hover:text-orange-700 transition"
+                >
+                  Enviar arquivo CSV
+                </button>
+              </div>
             </div>
 
             {/* Logo */}
