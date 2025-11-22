@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import FornecedorService from "../service/FornecedorService";
+import FornecedorService from "../Service/FornecedorService";
 
 const FornecedorModal = ({ isOpen, onClose, onSelect }) => {
   const [fornecedores, setFornecedores] = useState([]);

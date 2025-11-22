@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { FaTimes } from "react-icons/fa";
 import FornecedorModal from "./FornecedorModal";
 
-import CompraService from "../service/CompraService";
-import FornecedorService from "../service/FornecedorService";
+import CompraService from "../Service/CompraService";
+import FornecedorService from "../Service/FornecedorService";
 
 import { useStatusModalStore } from "../../../shared/store/modal-store";
 
@@ -67,7 +67,10 @@ const CompraDetalhesModal = ({ isOpen, onClose, compra, produtosMap, onUpdated }
 
   const handleProdutoChange = (index, field, value) => {
     const updated = [...formData.produtos];
-    updated[index][field] = value;
+    updated[index][field] = field === "preco" || field === "quantidade"
+      ? Number(value)
+      : value;
+
     setFormData((prev) => ({ ...prev, produtos: updated }));
   };
 

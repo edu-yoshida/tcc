@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "../../shared/components/Sidebar";
-import CompraService from "./service/CompraService";
+import CompraService from "./Service/CompraService.js"
 import ProdutoService from "../home/service/ProdutoService";
-import FornecedorService from "./service/FornecedorService";
+import FornecedorService from "./Service/FornecedorService.js";
 
 import CompraDetalhesModal from "./modais/CompraDetalhesModal.js";
 

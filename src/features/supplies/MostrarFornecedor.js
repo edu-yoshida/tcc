@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FaSearch, FaChevronLeft, FaChevronRight } from "react-icons/fa";
-import FornecedorService from "./service/FornecedorService";
+import FornecedorService  from "./Service/FornecedorService";
 import ListarFornModal from "./modais/ListarFornModal";
 
 const MostrarFornecedores = () => {

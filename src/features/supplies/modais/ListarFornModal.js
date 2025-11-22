@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import FornecedorService from "../service/FornecedorService";
+import FornecedorService from "../Service/FornecedorService";
 import { FaTimes } from "react-icons/fa";
 import { useStatusModalStore } from "../../../shared/store/modal-store";
 
