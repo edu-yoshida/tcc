@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { FaSearch } from "react-icons/fa";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import LogoGastroFlow from "../../assets/LogoGastroFlow.png";
-import ReceitaService from "../home/service/ReceitaService";
+import ReceitaService from "./service/ReceitaService";
 import ListarReceitasModal from "./modais/ListarReceitasModal";
 
 const MostrarReceitas = () => {
@@ -15,7 +15,7 @@ const MostrarReceitas = () => {
   const [paginaAtual, setPaginaAtual] = useState(1);
   const receitasPorPagina = 10;
 
-  // Modal (opcional)
+  // Modal
   const [receitaSelecionada, setReceitaSelecionada] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -33,7 +33,7 @@ const MostrarReceitas = () => {
   const fetchReceitas = async () => {
     setLoadingReceitas(true);
     try {
-      const data = await ReceitaService.GetRecipes(); // ajuste o nome se necessário
+      const data = await ReceitaService.GetRecipes();
       setReceitas(data);
       setReceitasFiltradas(data);
     } catch (err) {
@@ -47,13 +47,12 @@ const MostrarReceitas = () => {
     fetchReceitas();
   }, []);
 
-  // Filtro
+  // Filtro de nome
   useEffect(() => {
-    const lista = receitas.filter((r) =>
-      r.nome && filtroNome
-        ? r.nome.toLowerCase().includes(filtroNome.toLowerCase())
-        : true
-    );
+    const lista = receitas.filter((r) => {
+      if (!filtroNome.trim()) return true;
+      return r.nome?.toLowerCase().includes(filtroNome.toLowerCase());
+    });
 
     setReceitasFiltradas(lista);
     setPaginaAtual(1);
@@ -71,11 +70,14 @@ const MostrarReceitas = () => {
   const proximaPagina = () =>
     setPaginaAtual((prev) => Math.min(prev + 1, totalPaginas));
 
+  
+
   return (
     <div className="flex w-screen h-screen overflow-hidden bg-orange-100 text-gray-800 font-sans">
 
       {/* Conteúdo */}
       <div className="flex-1 flex flex-col min-w-0 ml-64">
+
         {/* Header */}
         <div className="h-28 shrink-0 bg-gradient-to-r from-orange-400 via-yellow-500 to-orange-600 flex flex-col items-center justify-center text-white rounded-b-3xl overflow-hidden">
           <h2 className="text-2xl font-bold">Receitas Cadastradas</h2>
@@ -179,14 +181,14 @@ const MostrarReceitas = () => {
         </div>
       </div>
 
-      {receitaSelecionada && (
-        <ListarReceitasModal
-          isOpen={isModalOpen}
-          onClose={fecharModal}
-          receitaSelecionada={receitaSelecionada}
-        />
-      )}
-     
+      {/* MODAL SEM CONDICIONAL */}
+      <ListarReceitasModal
+        isOpen={isModalOpen}
+        onClose={fecharModal}
+        receitaSelecionada={receitaSelecionada}
+        onUpdated={fetchReceitas}
+      />
+
     </div>
   );
 };

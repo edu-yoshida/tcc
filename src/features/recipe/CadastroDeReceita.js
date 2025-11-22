@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Sidebar from "../../shared/components/Sidebar";
-import ReceitaService from "../home/service/ReceitaService";
+import ReceitaService from "./service/ReceitaService";
 import { FaPlusCircle, FaTrashAlt } from "react-icons/fa";
 import IngredientsModal from "./modais/IngredientsModal";
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FaSearch } from "react-icons/fa";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
-import AulaService from "../home/service/AulaService";
+import AulaService from "./service/AulaService";
 import AulaModal from "./modais/Aulamodal";
 
 const MostrarAulas = () => {
@@ -184,6 +184,7 @@ const MostrarAulas = () => {
           isOpen={isModalOpen}
           onClose={handleFecharModal}
           aulaSelecionada={aulaSelecionada}
+          onUpdated={fetchAulas}
         />
       )}
      
